@@ -1,0 +1,387 @@
+========================================================================
+CHILLFILM MOVIE-SERVICE ENTITY DOCUMENTATION SUMMARY
+Total Entities: 23 JPA Entities
+Date: 2026-07-03
+========================================================================
+
+------------------------------------------------------------------------
+1. USER MODULE
+------------------------------------------------------------------------
+
+Entity Class: User
+Package: com.truong2k4.movie_service.modules.user.entity
+Table: users
+Purpose: Represents application users (viewers, staff, admins) with credentials, avatars, status, and role tracking.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - username: String (Unique, Nullable = false)
+  - email: String (Unique, Nullable = false)
+  - password: String (Nullable = false)
+  - name: String
+  - role: UserRole (Enum: USER, ADMIN, etc.)
+  - avatarUrl: String
+  - status: UserStatus (Enum: ACTIVE, LOCKED, etc.)
+  - createdAt: LocalDateTime
+
+Entity Class: Permission
+Package: com.truong2k4.movie_service.modules.user.entity
+Table: permissions
+Purpose: Defines granular permission nodes (e.g., READ_MOVIES, UPDATE_MOVIES) for authorization checks.
+Fields:
+  - name: String (Primary Key)
+  - description: String
+
+Entity Class: InvalidatedToken
+Package: com.truong2k4.movie_service.modules.user.entity
+Table: invalidated_tokens
+Purpose: Stores blacklisted JWT tokens after logout or refresh to prevent replay attacks.
+Fields:
+  - id: String (Primary Key, JWT ID)
+  - expiryTime: Date
+
+------------------------------------------------------------------------
+2. MOVIE MODULE
+------------------------------------------------------------------------
+
+Entity Class: Movie
+Package: com.truong2k4.movie_service.modules.movie.entity
+Table: movies
+Purpose: The primary entity for ChillFilm, storing movie/show metadata, genres, cast list, and relationships to episodes.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - slug: String (Unique, Nullable = false)
+  - title: String (Nullable = false)
+  - originalTitle: String
+  - description: String (TEXT)
+  - year: int
+  - country: String
+  - type: MovieType (Enum: MOVIE, TV_SHOW, ANIME, etc.)
+  - quality: String
+  - language: String
+  - rating: double
+  - duration: String
+  - totalEpisodes: int
+  - currentEpisode: int
+  - releaseStatus: ReleaseStatus (Enum)
+  - status: MovieStatus (Enum: PUBLISHED, HIDDEN, DRAFT)
+  - views: long
+  - posterUrl: String (length = 1000)
+  - backdropUrl: String (length = 1000)
+  - trailerUrl: String (length = 1000)
+  - animeSeason: AnimeSeason (Enum)
+  - genres: List<String> (ElementCollection: movie_genres)
+  - cast: List<String> (ElementCollection: movie_cast)
+  - episodes: List<Episode> (OneToMany, cascade = ALL)
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+
+Entity Class: Episode
+Package: com.truong2k4.movie_service.modules.movie.entity
+Table: episodes
+Purpose: Stores data about an individual episode in a TV Show or Anime series.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - episodeNumber: int (Nullable = false)
+  - title: String
+  - videoUrl: String (length = 1000) (fallback/main streaming url)
+  - movie: Movie (ManyToOne, nullable = false)
+
+Entity Class: EpisodeSource
+Package: com.truong2k4.movie_service.modules.movie.entity
+Table: episode_sources
+Purpose: Links multiple video player servers/mirrors and qualities for a single episode.
+Indexes: idx_episode_source_episode_id (episode_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - episode: Episode (ManyToOne, FetchType.LAZY, nullable = false)
+  - serverName: String (Nullable = false)
+  - quality: String (Nullable = false)
+  - videoUrl: String (length = 1000, Nullable = false)
+  - subtitleUrl: String (length = 1000)
+  - isDefault: Boolean
+
+Entity Class: Subtitle
+Package: com.truong2k4.movie_service.modules.movie.entity
+Table: subtitles
+Purpose: Stores captions/subtitles files associated with an episode in various languages.
+Indexes: idx_subtitle_episode_id (episode_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - episode: Episode (ManyToOne, FetchType.LAZY, nullable = false)
+  - language: String (Nullable = false)
+  - format: String (Nullable = false, e.g. SRT, VTT)
+  - subtitleUrl: String (length = 1000, Nullable = false)
+  - createdAt: LocalDateTime
+
+Entity Class: MovieVideoSource
+Package: com.truong2k4.movie_service.modules.movie.entity
+Table: movie_video_sources
+Purpose: Integrates external media sources, trailer embeds, S3 buckets, and demo/placeholders (such as Pexels) for movies.
+Fields:
+  - id: Long (Primary Key, Auto-increment)
+  - movie: Movie (ManyToOne, FetchType.LAZY, nullable = false)
+  - type: VideoType (Enum: TRAILER, FULL, EPISODE, DEMO, PLACEHOLDER, CLIP)
+  - provider: VideoProvider (Enum: PEXELS, YOUTUBE, ARCHIVE, S3, R2, BUNNY, LOCAL)
+  - videoUrl: String (TEXT)
+  - embedUrl: String
+  - storageKey: String (length = 500)
+  - quality: String (length = 20)
+  - durationSeconds: Integer
+  - licenseType: String (length = 50)
+  - attribution: String (TEXT)
+  - isDemo: Boolean (Default: false)
+  - isActive: Boolean (Default: true)
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+
+------------------------------------------------------------------------
+3. LIBRARY & WATCHING PROGRESS MODULE
+------------------------------------------------------------------------
+
+Entity Class: Favorite
+Package: com.truong2k4.movie_service.modules.library.entity
+Table: user_favorites
+Purpose: Records movies users have added to their favorites list.
+Constraints: Unique key on (user_id, movie_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID (Nullable = false)
+  - movieId: UUID (Nullable = false)
+  - createdAt: LocalDateTime
+
+Entity Class: Follow
+Package: com.truong2k4.movie_service.modules.library.entity
+Table: user_follows
+Purpose: Keeps track of series or movies users are following for release notifications.
+Constraints: Unique key on (user_id, movie_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID (Nullable = false)
+  - movieId: UUID (Nullable = false)
+  - createdAt: LocalDateTime
+
+Entity Class: WatchHistory
+Package: com.truong2k4.movie_service.modules.library.entity
+Table: user_watch_history
+Purpose: Logs user viewing history to populate "Recently Watched" sections.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID (Nullable = false)
+  - movieId: UUID (Nullable = false)
+  - episodeNumber: int
+  - watchedAt: LocalDateTime
+
+Entity Class: WatchProgress
+Package: com.truong2k4.movie_service.modules.library.entity
+Table: user_watch_progress
+Purpose: Saves exact playback time (seconds) to resume video playback.
+Constraints: Unique key on (user_id, movie_id, episode_id)
+Indexes: idx_watch_progress_user_id (user_id), idx_watch_progress_movie_id (movie_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID (Nullable = false)
+  - movieId: UUID (Nullable = false)
+  - episodeId: UUID (Nullable = false)
+  - episodeNumber: Integer
+  - currentTimeSeconds: Integer
+  - durationSeconds: Integer
+  - completed: Boolean
+  - updatedAt: LocalDateTime
+
+------------------------------------------------------------------------
+4. COMMENT MODULE
+------------------------------------------------------------------------
+
+Entity Class: Comment
+Package: com.truong2k4.movie_service.modules.comment.entity
+Table: comments
+Purpose: Holds user comment records on films, handling parent/child replies, likes, reports, and content visibility status.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - movieId: UUID (Nullable = false)
+  - parentId: UUID
+  - userId: UUID (Nullable = false)
+  - userName: String (Nullable = false)
+  - userAvatarUrl: String
+  - content: String (TEXT, Nullable = false)
+  - status: String (Default: "visible")
+  - likes: int
+  - reports: int
+  - reportReason: String
+  - createdAt: LocalDateTime
+
+------------------------------------------------------------------------
+5. RATING MODULE
+------------------------------------------------------------------------
+
+Entity Class: MovieRating
+Package: com.truong2k4.movie_service.modules.rating.entity
+Table: movie_ratings
+Purpose: Captures user ratings (scores from 1 to 10) and written reviews for movies.
+Constraints: Unique key on (user_id, movie_id)
+Indexes: idx_rating_movie_id (movie_id), idx_rating_user_id (user_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID (Nullable = false)
+  - movieId: UUID (Nullable = false)
+  - score: Integer (Nullable = false, 1-10)
+  - review: String (TEXT)
+  - status: String (Default: "visible")
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+
+------------------------------------------------------------------------
+6. NOTIFICATION MODULE
+------------------------------------------------------------------------
+
+Entity Class: Notification
+Package: com.truong2k4.movie_service.modules.notification.entity
+Table: notifications
+Purpose: Stores system alerts, comment replies, or new episode releases targeted to users.
+Indexes: idx_notification_user_id (user_id), idx_notification_read (is_read)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID (Nullable = false)
+  - type: NotificationType (Enum: SYSTEM, COMMENT_REPLY, NEW_EPISODE, etc.)
+  - title: String (Nullable = false)
+  - content: String (TEXT)
+  - targetUrl: String (length = 1000)
+  - movieId: UUID
+  - episodeId: UUID
+  - read: Boolean (Default: false)
+  - createdAt: LocalDateTime
+  - readAt: LocalDateTime
+
+------------------------------------------------------------------------
+7. REPORT MODULE
+------------------------------------------------------------------------
+
+Entity Class: FilmReport
+Package: com.truong2k4.movie_service.modules.report.entity
+Table: film_reports
+Purpose: Logs complaints or technical issues reported by users regarding specific movies.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - movieId: UUID (Nullable = false)
+  - movieTitle: String (Nullable = false)
+  - reporterName: String (Nullable = false)
+  - reason: String (Nullable = false)
+  - detail: String (TEXT)
+  - status: FilmReportStatus (Enum: PENDING, RESOLVED, DISMISSED)
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+
+------------------------------------------------------------------------
+8. SEARCH MODULE
+------------------------------------------------------------------------
+
+Entity Class: SearchHistory
+Package: com.truong2k4.movie_service.modules.search.entity
+Table: search_histories
+Purpose: Tracks search queries typed by users for analytics and autocompletion hints.
+Indexes: idx_search_user_id (user_id), idx_search_keyword (keyword)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID
+  - keyword: String (Nullable = false)
+  - resultCount: Integer
+  - createdAt: LocalDateTime
+
+------------------------------------------------------------------------
+9. ANALYTICS & LOGGING MODULE
+------------------------------------------------------------------------
+
+Entity Class: AccessLog
+Package: com.truong2k4.movie_service.modules.analytics.entity
+Table: analytics_access_logs
+Purpose: Records user interactions (page visits, searches, comments, playback actions) for broad usage patterns.
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - userId: UUID
+  - movieId: UUID
+  - page: String
+  - action: String (e.g. visit, watch, search, comment)
+  - keyword: String
+  - createdAt: LocalDateTime
+
+Entity Class: DailyTraffic
+Package: com.truong2k4.movie_service.modules.analytics.entity
+Table: analytics_daily_traffic
+Purpose: Stores aggregated daily statistics of total traffic visits and video views.
+Constraints: Unique key on (date)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - date: LocalDate (Nullable = false)
+  - visits: int
+  - views: int
+
+Entity Class: MovieAnalytics
+Package: com.truong2k4.movie_service.modules.analytics.entity
+Table: analytics_movies
+Purpose: Tracks aggregated popularity statistics of views, likes, comment counts, and watch time per movie.
+Constraints: Unique key on (movieId)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - movieId: UUID (Nullable = false)
+  - views: int
+  - likes: int
+  - comments: int
+  - watchTimeMinutes: int
+
+------------------------------------------------------------------------
+10. ADMIN MODULE
+------------------------------------------------------------------------
+
+Entity Class: AdminAuditLog
+Package: com.truong2k4.movie_service.modules.admin.entity
+Table: admin_audit_logs
+Purpose: Records actions performed by admin users to ensure strict auditing (e.g., updates to movies/users).
+Indexes: idx_admin_audit_admin_id (admin_id), idx_admin_audit_target (targetType, targetId)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - adminId: UUID (Nullable = false)
+  - action: AdminActionType (Enum)
+  - targetType: String
+  - targetId: UUID
+  - oldValue: String (TEXT)
+  - newValue: String (TEXT)
+  - createdAt: LocalDateTime
+
+------------------------------------------------------------------------
+11. RAG (RETRIEVAL-AUGMENTED GENERATION) MODULE
+------------------------------------------------------------------------
+
+Entity Class: MovieRagDocument
+Package: com.truong2k4.movie_service.modules.rag.entity
+Table: movie_rag_documents
+Purpose: Breaks movie plot and metadata down into text document chunks to index into vector stores (like Qdrant) for AI-powered searches.
+Indexes: idx_rag_movie_id (movie_id), idx_rag_source_type (source_type), idx_rag_embedded (embedded)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - movieId: UUID (Nullable = false)
+  - sourceType: RagSourceType (Enum: METADATA, PLOT, REVIEWS)
+  - content: String (TEXT, Nullable = false)
+  - contentHash: String (length = 64)
+  - qdrantCollection: String
+  - qdrantPointId: String
+  - embeddingModel: String
+  - embedded: Boolean (Default: false)
+  - embeddedAt: LocalDateTime
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+
+Entity Class: RagChatMessage
+Package: com.truong2k4.movie_service.modules.rag.entity
+Table: rag_chat_messages
+Purpose: Logs user and AI agent chat queries and retrieve context for RAG chatbot sessions.
+Indexes: idx_rag_chat_user_id (user_id), idx_rag_chat_session_id (session_id)
+Fields:
+  - id: UUID (Primary Key, Auto UUID)
+  - sessionId: UUID
+  - userId: UUID
+  - userMessage: String (TEXT, Nullable = false)
+  - assistantMessage: String (TEXT)
+  - retrievedMovieIds: String (TEXT)
+  - retrievedContext: String (TEXT)
+  - modelName: String
+  - createdAt: LocalDateTime
