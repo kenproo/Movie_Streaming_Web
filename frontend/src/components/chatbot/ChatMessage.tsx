@@ -5,6 +5,7 @@
  * Hỗ trợ: tin nhắn user (phải), tin nhắn bot (trái), trạng thái loading.
  */
 
+import { Bot } from 'lucide-react'
 import type { MovieSuggestion } from '../../services/chatbotService'
 import { MovieSuggestionCard } from './MovieSuggestionCard'
 
@@ -26,15 +27,10 @@ interface ChatMessageProps {
 /** Bot avatar icon */
 function BotAvatar() {
   return (
-    <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-500/20">
-      <svg className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2M9 3h6a1 1 0 011 1v4a1 1 0 01-1 1H9a1 1 0 01-1-1V4a1 1 0 011-1z"
-        />
-      </svg>
+    <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 p-[1px] shadow-md shadow-emerald-500/10">
+      <div className="flex h-full w-full items-center justify-center rounded-[7px] bg-slate-950">
+        <Bot className="h-3.5 w-3.5 text-emerald-400" strokeWidth={1.8} />
+      </div>
     </div>
   )
 }

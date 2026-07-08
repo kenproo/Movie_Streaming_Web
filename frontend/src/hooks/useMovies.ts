@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { movieService } from '../services/movieService'
 import type { Movie, MovieFilters, MovieType } from '../types/movie'
+import { createCacheKey, getCachedData, getOrSetCachedData } from '../utils/requestCache'
 
 type UseMoviesOptions = {
   type?: MovieType
@@ -8,14 +9,26 @@ type UseMoviesOptions = {
 }
 
 export function useMovies({ type, filters }: UseMoviesOptions = {}) {
-  const [movies, setMovies] = useState<Movie[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
   const filterString = useMemo(() => JSON.stringify(filters ?? {}), [filters])
+  const cacheKey = useMemo(() => createCacheKey('movies-hook', { type: type ?? 'all', filters: filters ?? {} }), [type, filterString])
+  const cachedMovies = useMemo(() => getCachedData<Movie[]>(cacheKey), [cacheKey])
+  const [movies, setMovies] = useState<Movie[]>(cachedMovies ?? [])
+  const [loading, setLoading] = useState(!cachedMovies)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
+
+    const cached = getCachedData<Movie[]>(cacheKey)
+    if (cached) {
+      setMovies(cached)
+      setLoading(false)
+      setError(null)
+      return () => {
+        active = false
+      }
+    }
+
     setLoading(true)
 
     const fetchMovies = async () => {
@@ -25,7 +38,15 @@ export function useMovies({ type, filters }: UseMoviesOptions = {}) {
       return movieService.getFilteredMovies(filters ?? {})
     }
 
-    fetchMovies()
+    const fetchMovieList = async () => {
+      const data = await fetchMovies()
+      if (data && 'data' in data && Array.isArray(data.data)) {
+        return data.data
+      }
+      return data as Movie[]
+    }
+
+    getOrSetCachedData(cacheKey, fetchMovieList)
       .then((data) => {
         if (active) {
           setMovies(data)
@@ -46,7 +67,7 @@ export function useMovies({ type, filters }: UseMoviesOptions = {}) {
     return () => {
       active = false
     }
-  }, [type, filterString])
+  }, [type, filterString, cacheKey])
 
   return { movies, loading, error }
 }

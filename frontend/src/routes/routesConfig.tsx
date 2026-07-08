@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom'
-import { MainLayout } from '../layouts/MainLayout'
+import { MainLayout } from '../layout/MainLayout'
 import { HomePage } from '../pages/HomePage'
 import { MoviesPage } from '../pages/MoviesPage'
 import { SingleMoviesPage } from '../pages/SingleMoviesPage'
@@ -11,10 +11,11 @@ import { WatchPage } from '../pages/WatchPage'
 import { LoginPage } from '../pages/LoginPage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { ProfilePage } from '../pages/ProfilePage'
+import { LibraryPage } from '../pages/LibraryPage'
 import { ForbiddenPage } from '../pages/ForbiddenPage'
 import { AdminRoute } from './AdminRoute'
 import { ProtectedRoute } from './ProtectedRoute'
-import { AdminLayout } from '../layouts/AdminLayout'
+import { AdminLayout } from '../layout/AdminLayout'
 import { AdminDashboardPage } from '../admin/AdminDashboardPage'
 import { AdminMoviesPage } from '../admin/AdminMoviesPage'
 import { AdminMovieCreatePage } from '../admin/AdminMovieCreatePage'
@@ -40,7 +41,10 @@ export const routesConfig: RouteObject[] = [
       { path: '/register', element: <RegisterPage /> },
       {
         element: <ProtectedRoute />,
-        children: [{ path: '/profile', element: <ProfilePage /> }],
+        children: [
+          { path: '/profile', element: <ProfilePage /> },
+          { path: '/library', element: <LibraryPage /> },
+        ],
       },
       { path: '/403', element: <ForbiddenPage /> },
     ],

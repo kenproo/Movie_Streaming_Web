@@ -77,36 +77,54 @@ export function HeroBanner({ movies }: { movies: Movie[] }) {
         >
           {movies.map((movie) => (
             <div key={movie.id} className="relative min-h-[460px] w-full flex-shrink-0">
-              <img src={movie.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/30" />
-              <div className="relative z-10 flex min-h-[460px] max-w-4xl flex-col justify-end px-12 py-8 sm:px-20 sm:py-10 lg:px-24 lg:py-12 text-white">
-                <div className="mb-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
-                  <span className="rounded-full bg-lime-400 px-3 py-1 text-slate-950">{movie.quality}</span>
-                  <span className="rounded-full bg-cyan-400/15 px-3 py-1 text-cyan-200 ring-1 ring-cyan-300/20">{movie.language}</span>
+              {/* Premium Background */}
+              <div className="absolute inset-0 overflow-hidden">
+                {movie.backdropUrl ? (
+                  <img src={movie.backdropUrl} alt="" className="h-full w-full object-cover animate-fade-in" />
+                ) : (
+                  <div className="relative h-full w-full">
+                    <img src={movie.posterUrl} alt="" className="absolute inset-0 h-full w-full object-cover blur-3xl scale-125 opacity-40" />
+                    <div className="absolute inset-0 bg-slate-950/60" />
+                  </div>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent" />
+              
+              <div className="relative z-10 flex min-h-[460px] max-w-7xl items-center justify-between gap-12 px-12 py-8 sm:px-20 sm:py-10 lg:px-24 lg:py-12 text-white">
+                <div className="max-w-2xl flex flex-col justify-end">
+                  <div className="mb-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
+                    <span className="rounded-full bg-lime-400 px-3 py-1 text-slate-950">{movie.quality}</span>
+                    <span className="rounded-full bg-cyan-400/15 px-3 py-1 text-cyan-200 ring-1 ring-cyan-300/20">{movie.language}</span>
+                  </div>
+                  <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl line-clamp-1">{movie.title}</h1>
+                  <p className="mt-2 text-lg text-slate-300 sm:text-xl line-clamp-1">{movie.originalTitle}</p>
+                  <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-200">
+                    <span className="rounded-full bg-white/10 px-3 py-1">{formatRating(movie.rating)} điểm</span>
+                    <span className="rounded-full bg-white/10 px-3 py-1">{movie.year}</span>
+                    <span className="rounded-full bg-white/10 px-3 py-1">{formatViews(movie.views)} lượt xem</span>
+                  </div>
+                  <p className="mt-5 text-sm leading-6 text-slate-300 sm:text-base line-clamp-2 sm:line-clamp-3">{movie.description}</p>
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <Link
+                      to={`/watch/${movie.slug}`}
+                      className="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:brightness-110"
+                    >
+                      <Play className="h-4 w-4 fill-current" />
+                      Xem ngay
+                    </Link>
+                    <Link
+                      to={`/movie/${movie.slug}`}
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/15"
+                    >
+                      <Info className="h-4 w-4" />
+                      Chi tiết
+                    </Link>
+                  </div>
                 </div>
-                <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl line-clamp-1">{movie.title}</h1>
-                <p className="mt-2 text-lg text-slate-300 sm:text-xl line-clamp-1">{movie.originalTitle}</p>
-                <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-200">
-                  <span className="rounded-full bg-white/10 px-3 py-1">{formatRating(movie.rating)} điểm</span>
-                  <span className="rounded-full bg-white/10 px-3 py-1">{movie.year}</span>
-                  <span className="rounded-full bg-white/10 px-3 py-1">{formatViews(movie.views)} lượt xem</span>
-                </div>
-                <p className="mt-5 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base line-clamp-2 sm:line-clamp-3">{movie.description}</p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <Link
-                    to={`/watch/${movie.slug}`}
-                    className="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:brightness-110"
-                  >
-                    <Play className="h-4 w-4 fill-current" />
-                    Xem ngay
-                  </Link>
-                  <Link
-                    to={`/movie/${movie.slug}`}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/15"
-                  >
-                    <Info className="h-4 w-4" />
-                    Chi tiết
-                  </Link>
+
+                {/* Right side poster (Premium design) */}
+                <div className="hidden lg:block h-[340px] w-[226px] flex-shrink-0 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/80 transition-all duration-500 hover:scale-105 hover:border-lime-400/40">
+                  <img src={movie.posterUrl} alt={movie.title} className="h-full w-full object-cover" />
                 </div>
               </div>
             </div>

@@ -52,4 +52,14 @@ export interface MovieFilters {
   episodeRange?: string
   animeSeason?: string
   sortBy?: string
+  page?: number
+  size?: number
+}
+
+export interface PaginatedResult<T> {
+  currentPage: number
+  totalPages: number
+  pageSize: number
+  totalElements: number
+  data: T[]
 }

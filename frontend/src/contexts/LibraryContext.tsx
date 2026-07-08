@@ -14,6 +14,8 @@ type LibraryContextValue = {
   toggleFavorite: (movie: Movie) => void
   toggleFollow: (movie: Movie) => void
   addHistory: (movieId: string, episodeNumber: number) => void
+  getFavoriteMoviesDetails: () => Promise<Movie[]>
+  getFollowMoviesDetails: () => Promise<Movie[]>
 }
 
 const LibraryContext = createContext<LibraryContextValue | null>(null)
@@ -59,6 +61,14 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       toggleFavorite: (movie: Movie) => guarded(() => service.toggleFavorite(movie)),
       toggleFollow: (movie: Movie) => guarded(() => service.toggleFollow(movie)),
       addHistory: (movieId: string, episodeNumber: number) => guarded(() => service.addHistory(movieId, episodeNumber)),
+      getFavoriteMoviesDetails: () => {
+        if (!isAuthenticated) return Promise.resolve([])
+        return service.getFavoriteMoviesDetails()
+      },
+      getFollowMoviesDetails: () => {
+        if (!isAuthenticated) return Promise.resolve([])
+        return service.getFollowMoviesDetails()
+      }
     }),
     [library, isAuthenticated],
   )

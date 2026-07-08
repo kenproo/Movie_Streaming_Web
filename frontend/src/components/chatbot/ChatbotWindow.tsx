@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
+import { Bot } from 'lucide-react'
 import type { Message } from './ChatMessage'
 import { ChatMessage } from './ChatMessage'
 import { sendChatMessage } from '../../services/chatbotService'
@@ -37,6 +38,7 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE])
   const [inputText, setInputText] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [sessionId, setSessionId] = useState<string | undefined>()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -75,7 +77,10 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     setIsLoading(true)
 
     try {
-      const response = await sendChatMessage(messageText)
+      const response = await sendChatMessage(messageText, sessionId)
+      if (response.sessionId) {
+        setSessionId(response.sessionId)
+      }
 
       // Thay loading message bằng response thật
       setMessages((prev) =>
@@ -126,41 +131,38 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
   return (
     <div
       id="chatbot-window"
-      className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#111827] shadow-2xl shadow-black/50"
+      className="relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-xl shadow-2xl shadow-black/80 animate-page-in"
       style={{ width: '100%', height: '100%' }}
     >
+      {/* Background Ambient Glows */}
+      <div className="pointer-events-none absolute -left-16 -top-16 h-36 w-36 rounded-full bg-emerald-500/10 blur-3xl z-0" />
+      <div className="pointer-events-none absolute -right-16 -bottom-16 h-36 w-36 rounded-full bg-cyan-500/10 blur-3xl z-0" />
+
       {/* ─── Header ──────────────────────────────────────────────────── */}
-      <div className="relative flex items-center gap-2.5 border-b border-white/10 bg-[#0f172a] px-3.5 py-2.5">
+      <div className="relative z-10 flex items-center gap-2.5 border-b border-white/10 bg-slate-900/40 px-3.5 py-3 backdrop-blur-md">
         {/* Bot avatar */}
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
-          <svg
-            className="h-[16px] w-[16px] text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={1.8}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-            />
-          </svg>
+        <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 p-[1px] shadow-lg shadow-emerald-500/20">
+          <div className="flex h-full w-full items-center justify-center rounded-[11px] bg-slate-950">
+            <Bot className="h-[15px] w-[15px] text-emerald-400" strokeWidth={1.8} />
+          </div>
         </div>
 
         {/* Title */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold leading-tight text-slate-100">ChillFilm AI</h3>
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold leading-tight text-slate-100">ChillFilm AI</h3>
+            <span className="rounded bg-emerald-500/10 px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider text-emerald-400 border border-emerald-500/20">AI</span>
+          </div>
           <p className="text-[10px] text-slate-400 truncate leading-tight">Gợi ý phim theo sở thích của bạn</p>
         </div>
 
         {/* Online indicator */}
         <div className="flex items-center gap-1 mr-7">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500"></span>
+            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
           </span>
-          <span className="text-[10px] text-green-400">Online</span>
+          <span className="text-[10px] text-emerald-400 font-medium">Online</span>
         </div>
 
         {/* Close button */}
@@ -177,7 +179,7 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
       </div>
 
       {/* ─── Messages area ────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 scrollbar-thin">
+      <div className="relative z-10 flex-1 overflow-y-auto overscroll-contain px-3 py-3 scrollbar-thin">
         <div className="flex flex-col gap-3">
           {messages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
@@ -188,15 +190,15 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
 
       {/* ─── Quick suggestions (hiện khi chưa có nhiều tin nhắn) ───────────────── */}
       {messages.length <= 1 && (
-        <div className="border-t border-white/5 px-3 pb-2 pt-2">
+        <div className="relative z-10 border-t border-white/5 px-3 pb-2.5 pt-2">
           <p className="mb-1.5 text-[9px] font-semibold text-slate-500 uppercase tracking-wider">Gợi ý nhanh</p>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {QUICK_SUGGESTIONS.map((s) => (
               <button
                 key={s}
                 onClick={() => handleQuickSuggest(s)}
                 disabled={isLoading}
-                className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] text-green-400 transition-all hover:bg-green-500/20 hover:border-green-400/50 disabled:opacity-50 cursor-pointer"
+                className="rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-0.5 text-[10px] text-emerald-400 transition-all hover:bg-emerald-500/15 hover:border-emerald-500/40 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
               >
                 {s}
               </button>
@@ -206,8 +208,8 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
       )}
 
       {/* ─── Input area ─────────────────────────────────────────────── */}
-      <div className="border-t border-white/10 bg-[#0f172a]/60 px-3 py-2.5">
-        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800/80 pr-1.5 pl-3 transition-all focus-within:border-green-500/50 focus-within:ring-1 focus-within:ring-green-500/20">
+      <div className="relative z-10 border-t border-white/10 bg-[#0f172a]/40 px-3 py-3 backdrop-blur-md">
+        <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-slate-900/80 pr-1.5 pl-3.5 transition-all focus-within:border-emerald-500/40 focus-within:ring-1 focus-within:ring-emerald-500/20">
           <input
             ref={inputRef}
             id="chatbot-input"
@@ -217,7 +219,7 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             placeholder={isLoading ? 'ChillFilm AI đang trả lời...' : 'Nhập tin nhắn...'}
-            className="flex-1 bg-transparent py-2 text-sm text-slate-200 placeholder-slate-500 outline-none disabled:opacity-60"
+            className="flex-1 bg-transparent py-2.5 text-sm text-slate-200 placeholder-slate-500 outline-none disabled:opacity-60"
           />
 
           {/* Send button */}
@@ -225,16 +227,16 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
             id="chatbot-send-btn"
             onClick={() => handleSend()}
             disabled={isLoading || !inputText.trim()}
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-green-500 text-white shadow-md shadow-green-500/30 transition-all hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-40 active:scale-95 cursor-pointer"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-md shadow-emerald-500/25 transition-all hover:bg-emerald-400 hover:shadow-emerald-400/35 disabled:cursor-not-allowed disabled:opacity-40 active:scale-95 cursor-pointer"
             aria-label="Gửi tin nhắn"
           >
             {isLoading ? (
-              <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : (
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             )}

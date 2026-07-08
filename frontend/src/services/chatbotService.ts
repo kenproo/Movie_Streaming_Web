@@ -1,4 +1,4 @@
-import { api } from './api'
+import { chatbotApi } from '../api/chatbotApi'
 
 export interface MovieSuggestion {
   id: string
@@ -13,6 +13,7 @@ export interface MovieSuggestion {
 export interface ChatbotResponse {
   answer: string
   movies: MovieSuggestion[]
+  sessionId?: string
 }
 
 /**
@@ -21,8 +22,8 @@ export interface ChatbotResponse {
  * @param message - Tin nhắn từ người dùng
  * @returns Promise<ChatbotResponse>
  */
-export async function sendChatMessage(message: string): Promise<ChatbotResponse> {
-  const response = await api.post<any>('/rag/chat', { message })
+export async function sendChatMessage(message: string, sessionId?: string): Promise<ChatbotResponse> {
+  const response = await chatbotApi.chat(message, sessionId)
   return {
     answer: response.answer,
     movies: (response.recommendations ?? []).map((rec: any) => ({
@@ -34,5 +35,6 @@ export async function sendChatMessage(message: string): Promise<ChatbotResponse>
       reason: rec.reason,
       slug: rec.slug,
     })),
+    sessionId: response.sessionId,
   }
 }
