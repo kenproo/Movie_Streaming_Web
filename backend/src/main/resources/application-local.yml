@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3307/movie_streaming_web?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+jwt:
+  signerKey: aVeryLongSecretKeyThatIsAtLeast64BytesLongForHS512EncryptionAndShouldBeSuperSecureAndSafe!
+
+external:
+  pexels:
+    api-key: VRmeOeyvrg8FMM71poRRq1CCJCEnJ0IdvPft1mBo0uEePfbCXEgQ9Lnz
+    enabled: true
+
+rag:
+  service:
+    url: ${RAG_SERVICE_URL:http://localhost:8000}
+
+qdrant:
+  url: http://localhost:6333
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:3000
+
+chillfilm:
+  import:
+    data-dir: c:/Users/Truong/Downloads
+
