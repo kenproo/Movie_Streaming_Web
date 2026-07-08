@@ -11,6 +11,16 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.local
+.env.production
+.env.production.local
+application-secret.yml
+*secret*
+*aws*
+*kaggle*
+*jwt*
+*key*
 
 # Editor directories and files
 .vscode/*

@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Secrets and environment files
+.env
+.env.local
+.env.production
+.env.production.local
+application-secret.yml
+application-local.yml
+*secret*
+*aws*
+*kaggle*
+*jwt*
+*key*
