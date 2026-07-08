@@ -1,0 +1,41 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: movie-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+jwt:
+  valid-duration: 86400
+  refreshable-duration: 604800
+
+external:
+  pexels:
+    base-url: https://api.pexels.com
+
+chillfilm:
+  import:
+    enabled: false
+    data-dir: ${CHILLFILM_IMPORT_DIR:./import-data}
+    s3-public-base-url: ${CHILLFILM_S3_PUBLIC_BASE_URL:https://chillfilm-assets-07072026.s3.ap-southeast-1.amazonaws.com/posters}
+    overwrite-existing: true
+    default-status: PUBLISHED
+    default-movie-type: SINGLE
+    default-quality: HD
+    default-language: Vietsub
+
+qdrant:
+  url: ${QDRANT_URL:http://localhost:6333}
+  collection-name: ${QDRANT_COLLECTION_NAME:chillfilm_movies}
+

@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: false
+
+jwt:
+  signerKey: ${JWT_SECRET}
+
+external:
+  pexels:
+    api-key: ${PEXELS_API_KEY:}
+    enabled: false
+
+rag:
+  service:
+    url: ${RAG_SERVICE_URL:http://localhost:8000}
+
+qdrant:
+  url: ${QDRANT_URL}
+
+aws:
+  access-key-id: ${AWS_ACCESS_KEY_ID}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+
+s3:
+  bucket: ${S3_BUCKET}
+  region: ${S3_REGION}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://chillfilm.com}
