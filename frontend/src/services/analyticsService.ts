@@ -1,53 +1,43 @@
-import { api } from './api'
 import { mapMovieToFrontend } from './movieService'
 import type { AccessLog, DailyTraffic } from '../types/analytics'
 import type { Movie } from '../types/movie'
+import { analyticsApi } from '../api/analyticsApi'
 
 export const analyticsService = {
   async getDashboardStats() {
-    return api.get<{
-      totalViews: number
-      totalVisits: number
-      totalWatchTimeMinutes: number
-      totalComments: number
-      totalMovies: number
-      totalUsers: number
-      hotMovies: number
-      todayViews: number
-    }>('/admin/analytics/dashboard')
+    return analyticsApi.getDashboardStats()
   },
 
   async getTopMovies(): Promise<Movie[]> {
-    const movies = await api.get<any[]>('/admin/analytics/top-movies')
+    const movies = await analyticsApi.getTopMovies()
     return movies.map(mapMovieToFrontend)
   },
 
   async getDailyTraffic(): Promise<DailyTraffic[]> {
-    return api.get<DailyTraffic[]>('/admin/analytics/traffic')
+    return analyticsApi.getDailyTraffic()
   },
 
   async getGenreStats(): Promise<{ genre: string; views: number }[]> {
-    return api.get<{ genre: string; views: number }[]>('/admin/analytics/genres')
+    return analyticsApi.getGenreStats()
   },
 
   async getAccessLogs(): Promise<AccessLog[]> {
-    return api.get<AccessLog[]>('/admin/analytics/access-logs')
+    return analyticsApi.getAccessLogs()
   },
 
   async trackView(movieId: string): Promise<void> {
-    await api.post<string>(`/analytics/track-view/${movieId}`)
+    await analyticsApi.trackView(movieId)
   },
 
   async trackVisit(page: string): Promise<void> {
-    await api.post<string>('/analytics/track-visit', { page })
+    await analyticsApi.trackVisit(page)
   },
 
   async trackSearch(keyword: string): Promise<void> {
-    await api.post<string>('/analytics/track-search', { keyword })
+    await analyticsApi.trackSearch(keyword)
   },
 
   async trackComment(movieId: string): Promise<void> {
-    // Backend handles this automatically during POST /comments, so we can ignore or call trackVisit
     await this.trackVisit(`/movie/${movieId}`)
   },
 }

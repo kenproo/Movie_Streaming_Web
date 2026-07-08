@@ -1,5 +1,5 @@
-import { api } from './api'
 import type { FilmReport, FilmReportStatus } from '../types/report'
+import { reportApi } from '../api/reportApi'
 
 function mapReportToFrontend(report: any): FilmReport {
   return {
@@ -12,33 +12,26 @@ function mapReportToFrontend(report: any): FilmReport {
 
 export const reportService = {
   async getReports(): Promise<FilmReport[]> {
-    const reports = await api.get<any[]>('/admin/reports')
+    const reports = await reportApi.getReports()
     return reports.map(mapReportToFrontend)
   },
 
   async getReportsByStatus(status?: FilmReportStatus): Promise<FilmReport[]> {
-    const query = status ? `?status=${status.toUpperCase()}` : ''
-    const reports = await api.get<any[]>(`/admin/reports${query}`)
+    const reports = await reportApi.getReports(status)
     return reports.map(mapReportToFrontend)
   },
 
   async createReport(movieId: string, reason: string, detail: string): Promise<FilmReport> {
-    const report = await api.post<any>('/reports', {
-      movieId,
-      reason,
-      detail,
-    })
+    const report = await reportApi.createReport(movieId, reason, detail)
     return mapReportToFrontend(report)
   },
 
   async updateReportStatus(reportId: string, status: FilmReportStatus): Promise<FilmReport> {
-    const report = await api.patch<any>(`/admin/reports/${reportId}`, {
-      status: status.toUpperCase(),
-    })
+    const report = await reportApi.updateReportStatus(reportId, status)
     return mapReportToFrontend(report)
   },
 
   async getUnreadCount(): Promise<number> {
-    return api.get<number>('/admin/reports/unread-count')
+    return reportApi.getUnreadCount()
   },
 }

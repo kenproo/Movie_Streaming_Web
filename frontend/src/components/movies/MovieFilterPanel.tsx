@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ChevronDown, X } from 'lucide-react'
 import type { MovieFilters } from '../../types/movie'
 
@@ -97,7 +98,16 @@ const configsByVariant: Record<NonNullable<MovieFilterPanelProps['variant']>, Fi
 }
 
 export function MovieFilterPanel({ filters, onChange, onClear, variant = 'all' }: MovieFilterPanelProps) {
+  const [searchParams] = useSearchParams()
+  const tab = searchParams.get('tab')
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (tab === 'genre' || tab === 'country' || tab === 'schedule') {
+      setOpen(true)
+    }
+  }, [tab])
+
   const configs = configsByVariant[variant]
   const activeEntries = Object.entries(filters).filter(([, value]) => Boolean(value)) as [FilterKey, string][]
 

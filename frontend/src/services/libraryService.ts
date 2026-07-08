@@ -1,6 +1,7 @@
-import { api } from './api'
 import type { Movie } from '../types/movie'
 import type { WatchHistoryItem } from '../types/library'
+import { libraryApi } from '../api/libraryApi'
+import { mapMovieToFrontend } from './movieService'
 
 type LibraryState = {
   favorites: string[]
@@ -11,7 +12,7 @@ type LibraryState = {
 export const libraryService = {
   async getLibrary(): Promise<LibraryState> {
     try {
-      const state = await api.get<any>('/library')
+      const state = await libraryApi.getLibrary()
       return {
         favorites: state.favorites ?? [],
         follows: state.follows ?? [],
@@ -29,7 +30,7 @@ export const libraryService = {
 
   async isFavorite(movieId: string): Promise<boolean> {
     try {
-      return await api.get<boolean>(`/library/favorite/${movieId}`)
+      return await libraryApi.isFavorite(movieId)
     } catch (err) {
       return false
     }
@@ -37,21 +38,41 @@ export const libraryService = {
 
   async isFollowing(movieId: string): Promise<boolean> {
     try {
-      return await api.get<boolean>(`/library/follow/${movieId}`)
+      return await libraryApi.isFollowing(movieId)
     } catch (err) {
       return false
     }
   },
 
   async toggleFavorite(movie: Movie): Promise<void> {
-    await api.post<string>(`/library/favorite/${movie.id}`)
+    await libraryApi.toggleFavorite(movie.id)
   },
 
   async toggleFollow(movie: Movie): Promise<void> {
-    await api.post<string>(`/library/follow/${movie.id}`)
+    await libraryApi.toggleFollow(movie.id)
   },
 
   async addHistory(movieId: string, episodeNumber: number): Promise<void> {
-    await api.post<string>('/library/history', { movieId, episodeNumber })
+    await libraryApi.addHistory(movieId, episodeNumber)
+  },
+
+  async getFavoriteMoviesDetails(): Promise<Movie[]> {
+    try {
+      const list = await libraryApi.getFavoriteMoviesDetails()
+      return (list ?? []).map(mapMovieToFrontend)
+    } catch (err) {
+      console.error('Failed to fetch favorite movies details:', err)
+      return []
+    }
+  },
+
+  async getFollowMoviesDetails(): Promise<Movie[]> {
+    try {
+      const list = await libraryApi.getFollowMoviesDetails()
+      return (list ?? []).map(mapMovieToFrontend)
+    } catch (err) {
+      console.error('Failed to fetch followed movies details:', err)
+      return []
+    }
   },
 }

@@ -33,24 +33,27 @@ public class Movie {
     @Column(columnDefinition = "TEXT")
     String description;
 
-    int year;
+    @Column(name = "release_year")
+    Integer year;
 
     String country;
 
     @Enumerated(EnumType.STRING)
     MovieType type;
 
-    String quality;
+    @Column(name = "display_quality")
+    String displayQuality;
 
-    String language;
+    @Column(name = "display_language")
+    String displayLanguage;
 
-    double rating;
+    Double rating;
 
     String duration;
 
-    int totalEpisodes;
+    Integer totalEpisodes;
 
-    int currentEpisode;
+    Integer currentEpisode;
 
     @Enumerated(EnumType.STRING)
     ReleaseStatus releaseStatus;
@@ -58,7 +61,7 @@ public class Movie {
     @Enumerated(EnumType.STRING)
     MovieStatus status;
 
-    long views;
+    Long views;
 
     @Column(length = 1000)
     String posterUrl;
@@ -66,6 +69,7 @@ public class Movie {
     @Column(length = 1000)
     String backdropUrl;
 
+    @Deprecated
     @Column(length = 1000)
     String trailerUrl;
 
@@ -78,6 +82,17 @@ public class Movie {
     @Column(name = "imdb_id", unique = true)
     String imdbId;
 
+    @Column(name = "tvmaze_id")
+    String tvmazeId;
+
+    @Column(name = "mal_id")
+    String malId;
+
+    String sourceProvider;
+
+    LocalDateTime lastSyncedAt;
+
+
     String director;
 
     String writer;
@@ -88,15 +103,17 @@ public class Movie {
 
     Double popularity;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "movie_keywords", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "keyword")
+    @org.hibernate.annotations.BatchSize(size = 100)
     @Builder.Default
     List<String> keywords = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "movie_tags", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "tag")
+    @org.hibernate.annotations.BatchSize(size = 100)
     @Builder.Default
     List<String> tags = new ArrayList<>();
 
@@ -104,15 +121,17 @@ public class Movie {
 
     LocalDateTime updatedAt;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "genre")
+    @org.hibernate.annotations.BatchSize(size = 100)
     @Builder.Default
     List<String> genres = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "cast_member")
+    @org.hibernate.annotations.BatchSize(size = 100)
     @Builder.Default
     List<String> cast = new ArrayList<>();
 

@@ -6,6 +6,7 @@ import { movieService } from '../services/movieService'
 import { reportService } from '../services/reportService'
 import { StatCard } from '../components/admin/StatCard'
 import { Badge } from '../common/Badge'
+import { notificationApi } from '../api/notificationApi'
 
 export function AdminDashboardPage() {
   const [summary, setSummary] = useState<any>()
@@ -14,6 +15,33 @@ export function AdminDashboardPage() {
   const [traffic, setTraffic] = useState<any[]>([])
   const [movies, setMovies] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  const [broadcastTitle, setBroadcastTitle] = useState('')
+  const [broadcastContent, setBroadcastContent] = useState('')
+  const [broadcastUrl, setBroadcastUrl] = useState('')
+  const [sendingBroadcast, setSendingBroadcast] = useState(false)
+
+  const handleBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!broadcastTitle.trim() || !broadcastContent.trim()) return
+
+    setSendingBroadcast(true)
+    try {
+      await notificationApi.broadcastNotification(
+        broadcastTitle.trim(),
+        broadcastContent.trim(),
+        broadcastUrl.trim() || undefined
+      )
+      alert('Đã gửi thông báo hệ thống thành công đến toàn bộ thành viên!')
+      setBroadcastTitle('')
+      setBroadcastContent('')
+      setBroadcastUrl('')
+    } catch (err) {
+      alert('Gửi thông báo thất bại: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setSendingBroadcast(false)
+    }
+  }
 
   useEffect(() => {
     let active = true
@@ -131,6 +159,56 @@ export function AdminDashboardPage() {
       <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
         <h2 className="text-lg font-bold text-white">Tổng kết user</h2>
         <p className="mt-2 text-sm text-slate-300">Tổng user hiện tại: {summary.totalUsers}</p>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+        <h2 className="text-lg font-bold text-white">Gửi thông báo hệ thống</h2>
+        <p className="mt-1 text-xs text-slate-400">Thông báo này sẽ được gửi tới tất cả người dùng đăng nhập hệ thống.</p>
+        
+        <form onSubmit={handleBroadcast} className="mt-4 space-y-4 max-w-xl">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-400" htmlFor="broadcast-title">Tiêu đề thông báo</label>
+            <input
+              id="broadcast-title"
+              type="text"
+              required
+              value={broadcastTitle}
+              onChange={(e) => setBroadcastTitle(e.target.value)}
+              placeholder="Ví dụ: Bảo trì hệ thống hoặc Ra mắt phim mới..."
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 p-3 text-sm text-white outline-none focus:border-cyan-400 transition"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-400" htmlFor="broadcast-content">Nội dung chi tiết</label>
+            <textarea
+              id="broadcast-content"
+              required
+              rows={3}
+              value={broadcastContent}
+              onChange={(e) => setBroadcastContent(e.target.value)}
+              placeholder="Nhập nội dung thông báo cho mọi người..."
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 p-3 text-sm text-white outline-none focus:border-cyan-400 transition resize-none"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-400" htmlFor="broadcast-url">Đường dẫn liên kết (Không bắt buộc)</label>
+            <input
+              id="broadcast-url"
+              type="text"
+              value={broadcastUrl}
+              onChange={(e) => setBroadcastUrl(e.target.value)}
+              placeholder="Ví dụ: /movies hoặc /movie/slug-phim"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 p-3 text-sm text-white outline-none focus:border-cyan-400 transition"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={sendingBroadcast}
+            className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:brightness-110 shadow-lg px-5 py-2.5 text-sm font-bold text-white transition active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            {sendingBroadcast ? 'Đang gửi...' : 'Gửi thông báo đến mọi người'}
+          </button>
+        </form>
       </section>
     </div>
   )

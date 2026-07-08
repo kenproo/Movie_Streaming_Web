@@ -33,6 +33,34 @@ public class LibraryService {
     FollowRepository followRepository;
     WatchHistoryRepository watchHistoryRepository;
     UserRepository userRepository;
+    com.truong2k4.movie_service.modules.movie.repository.MovieRepository movieRepository;
+    com.truong2k4.movie_service.modules.movie.mapper.MovieMapper movieMapper;
+
+    public List<com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse> getFavoriteMoviesDetails() {
+        User currentUser = getCurrentUser();
+        List<UUID> movieIds = favoriteRepository.findAllByUserId(currentUser.getId()).stream()
+                .map(Favorite::getMovieId)
+                .collect(Collectors.toList());
+        if (movieIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return movieRepository.findAllById(movieIds).stream()
+                .map(movieMapper::toSummaryResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse> getFollowMoviesDetails() {
+        User currentUser = getCurrentUser();
+        List<UUID> movieIds = followRepository.findAllByUserId(currentUser.getId()).stream()
+                .map(Follow::getMovieId)
+                .collect(Collectors.toList());
+        if (movieIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return movieRepository.findAllById(movieIds).stream()
+                .map(movieMapper::toSummaryResponse)
+                .collect(Collectors.toList());
+    }
 
     public LibraryResponse getLibrary() {
         User currentUser = getCurrentUser();

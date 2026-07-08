@@ -1,18 +1,19 @@
 import { useEffect } from 'react'
-import { Clock, Globe, Play, Sparkles, Star } from 'lucide-react'
-import { useParams } from 'react-router-dom'
+import { Clock, Play, Sparkles, Star, Heart } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
 import { EmptyState } from '../common/EmptyState'
 import { CommentSection } from '../components/comments/CommentSection'
 import { EpisodeList } from '../components/movies/EpisodeList'
 import { MovieRow } from '../components/movies/MovieRow'
 import { analyticsService } from '../services/analyticsService'
 import { formatRating } from '../utils/format'
-
 import { useMovieDetail } from '../hooks/useMovieDetail'
+import { useLibrary } from '../contexts/LibraryContext'
 
 export function MovieDetailPage() {
   const { slug } = useParams()
   const { movie, relatedMovies, loading } = useMovieDetail(slug)
+  const { isFavorite, toggleFavorite } = useLibrary()
 
   useEffect(() => {
     if (movie) {
@@ -22,31 +23,25 @@ export function MovieDetailPage() {
 
   if (loading) {
     return (
-      <div className="py-20 text-center text-slate-400">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-700 border-t-lime-400"></div>
-        <p className="mt-3 text-sm">Đang tải thông tin phim...</p>
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-lime-400 border-t-transparent" />
       </div>
     )
   }
 
   if (!movie) {
-    return (
-      <EmptyState
-        title="Không tìm thấy phim"
-        description="Phim này chưa tồn tại hoặc hiện không được phát hành."
-        actionLabel="Về trang phim"
-        actionTo="/movies"
-      />
-    )
+    return <EmptyState title="Không tìm thấy phim" description="Bộ phim bạn yêu cầu không tồn tại hoặc đã bị xóa." actionLabel="Quay lại trang chủ" actionTo="/" />
   }
 
+  const favorited = isFavorite(movie.id)
+
   return (
-    <div className="space-y-10">
-      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950 shadow-2xl shadow-black/30">
-        <div className="grid gap-0 lg:grid-cols-[320px_1fr]">
-          <div className="relative min-h-[420px] bg-slate-900">
+    <div className="space-y-8">
+      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.02] shadow-sm dark:shadow-none">
+        <div className="flex flex-col lg:flex-row">
+          <div className="relative h-[400px] w-full flex-shrink-0 overflow-hidden lg:h-[500px] lg:w-[350px]">
             <img src={movie.posterUrl} alt={movie.title} className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent lg:bg-gradient-to-r" />
           </div>
           <div className="relative p-6 sm:p-8 lg:p-10">
             <div className="mb-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
@@ -71,17 +66,25 @@ export function MovieDetailPage() {
               ))}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href={`/watch/${movie.slug}`} className="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-slate-950">
+              <Link to={`/watch/${movie.slug}`} className="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-slate-950">
                 <Play className="h-4 w-4 fill-current" />
                 Xem phim
-              </a>
+              </Link>
               <button type="button" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
                 <Sparkles className="h-4 w-4" />
                 Trailer
               </button>
-              <button type="button" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
-                <Globe className="h-4 w-4" />
-                Yêu thích
+              <button
+                type="button"
+                onClick={() => toggleFavorite(movie)}
+                className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition active:scale-95 cursor-pointer ${
+                  favorited
+                    ? 'bg-rose-500 border-rose-500 text-white hover:bg-rose-600'
+                    : 'border-white/10 bg-white/5 text-white hover:bg-white/10'
+                }`}
+              >
+                <Heart className={`h-4 w-4 ${favorited ? 'fill-current text-white animate-pulse' : 'text-slate-300'}`} />
+                {favorited ? 'Đã yêu thích' : 'Yêu thích'}
               </button>
             </div>
           </div>

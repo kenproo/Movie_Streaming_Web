@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, LibraryBig, LogOut, Menu, Moon, Search, Shield, Sun, UserRound, X } from 'lucide-react'
+import { LayoutDashboard, LibraryBig, LogOut, Menu, Moon, Search, Shield, Sun, UserRound, X, Bell, CheckCheck } from 'lucide-react'
+import logo from '../assets/logo.jpg'
 import { Button } from '../common/Button'
 import { SearchDropdown } from '../components/movies/SearchDropdown'
 import { useAuth } from '../contexts/AuthContext'
@@ -8,6 +9,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { useDebounce } from '../hooks/useDebounce'
 import { movieService } from '../services/movieService'
 import type { Movie } from '../types/movie'
+import { notificationApi, type NotificationItem } from '../api/notificationApi'
 
 const navItems = [
   { label: 'Trang chủ', to: '/' },
@@ -33,6 +35,137 @@ export function Header() {
   const isAdminPage = useMemo(() => location.pathname.startsWith('/admin'), [location.pathname])
   const [searchResults, setSearchResults] = useState<Movie[]>([])
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [notifOpen, setNotifOpen] = useState(false)
+
+  const fetchNotifications = () => {
+    if (!isAuthenticated) return
+    notificationApi.getMyNotifications()
+      .then((data) => setNotifications(data ?? []))
+      .catch((err) => console.error(err))
+    notificationApi.getUnreadCount()
+      .then((count) => setUnreadCount(count ?? 0))
+      .catch((err) => console.error(err))
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications()
+      const interval = setInterval(() => {
+        notificationApi.getUnreadCount()
+          .then((count) => setUnreadCount(count ?? 0))
+          .catch((err) => console.error(err))
+      }, 30000)
+      return () => clearInterval(interval)
+    } else {
+      setNotifications([])
+      setUnreadCount(0)
+    }
+  }, [isAuthenticated])
+
+  const handleOpenNotifications = () => {
+    setNotifOpen((prev) => !prev)
+    setUserMenuOpen(false)
+    if (!notifOpen) {
+      fetchNotifications()
+    }
+  }
+
+  const handleNotifClick = async (notif: NotificationItem) => {
+    setNotifOpen(false)
+    if (!notif.read) {
+      try {
+        await notificationApi.markAsRead(notif.id)
+        setUnreadCount((c) => Math.max(0, c - 1))
+        setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, read: true } : n))
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    if (notif.targetUrl) {
+      navigate(notif.targetUrl)
+    }
+  }
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationApi.markAllAsRead()
+      setUnreadCount(0)
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const renderNotifications = () => {
+    if (!isAuthenticated) return null
+    return (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={handleOpenNotifications}
+          className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 text-app-primary transition hover:-translate-y-0.5 hover:bg-black/10 dark:hover:bg-white/10 accent-ring cursor-pointer"
+          title="Thông báo"
+        >
+          <Bell className="h-4 w-4" />
+          {unreadCount > 0 && (
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+
+        {notifOpen && (
+          <>
+            <div className="fixed inset-0 z-30" onClick={() => setNotifOpen(false)} />
+            <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 shadow-2xl p-2 z-40 animate-dropdown-in">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-white/5">
+                <p className="text-xs font-bold text-app-primary">Thông báo</p>
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllAsRead}
+                    className="text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <CheckCheck className="h-3 w-3" />
+                    Đọc tất cả
+                  </button>
+                )}
+              </div>
+              <div className="max-h-64 overflow-y-auto py-1 scrollbar-thin">
+                {notifications.length > 0 ? (
+                  notifications.map((notif) => (
+                    <button
+                      key={notif.id}
+                      type="button"
+                      onClick={() => handleNotifClick(notif)}
+                      className={`w-full text-left flex gap-3.5 px-3 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition border-b border-slate-50 dark:border-white/5 last:border-b-0 cursor-pointer ${
+                        !notif.read ? 'bg-cyan-500/5' : ''
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-1">
+                          <p className={`text-xs truncate font-bold ${!notif.read ? 'text-cyan-600 dark:text-cyan-400' : 'text-app-primary'}`}>{notif.title}</p>
+                          {!notif.read && <span className="h-1.5 w-1.5 rounded-full bg-cyan-500 shrink-0 mt-1.5" />}
+                        </div>
+                        <p className="text-[11px] text-app-secondary line-clamp-2 mt-0.5 leading-relaxed">{notif.message}</p>
+                        <p className="text-[9px] text-app-muted mt-1.5">{new Date(notif.createdAt).toLocaleDateString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-xs text-app-muted">
+                    Không có thông báo nào.
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
   useEffect(() => {
     const trimmed = debouncedQuery.trim()
     if (!trimmed) {
@@ -149,9 +282,8 @@ export function Header() {
   return (
     <header className="app-header sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-semibold tracking-wide text-app-primary">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/15 dark:text-cyan-300 ring-1 ring-cyan-500/20 dark:ring-cyan-300/20">CF</span>
-          <span>ChillFilm</span>
+        <Link to="/" className="group relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-500 p-[1.5px] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20" aria-label="ChillFilm Home">
+          <img src={logo} alt="ChillFilm Logo" width={56} height={56} className="h-14 w-14 rounded-[14px] object-cover bg-slate-950" />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center gap-1 xl:flex">
@@ -199,12 +331,14 @@ export function Header() {
         </div>
 
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          {renderNotifications()}
           {renderThemeToggle()}
           {renderAuthActions()}
           {isAdminPage ? <span className="whitespace-nowrap rounded-full border border-cyan-500/20 dark:border-cyan-400/20 px-3 py-1 text-xs text-cyan-600 dark:text-cyan-300">Admin</span> : null}
         </div>
 
         <div className="ml-auto flex items-center gap-2 lg:hidden">
+          {renderNotifications()}
           {renderThemeToggle()}
           <button
             type="button"

@@ -18,8 +18,8 @@ public class MovieUpdateRequest {
     Integer year;
     String country;
     MovieType type;
-    String quality;
-    String language;
+    String displayQuality;
+    String displayLanguage;
     String duration;
     Integer totalEpisodes;
     Integer currentEpisode;
@@ -27,6 +27,7 @@ public class MovieUpdateRequest {
     MovieStatus status;
     String posterUrl;
     String backdropUrl;
+    @Deprecated
     String trailerUrl;
     AnimeSeason animeSeason;
     String director;
@@ -35,7 +36,11 @@ public class MovieUpdateRequest {
     String ageRating;
     String tmdbId;
     String imdbId;
+    String tvmazeId;
+    String malId;
+    String sourceProvider;
     Double popularity;
+
     List<String> genres;
     List<String> cast;
     List<String> keywords;

@@ -1,5 +1,5 @@
-import { api } from './api'
 import type { User, UserRole } from '../types/user'
+import { userApi } from '../api/userApi'
 
 export function mapUserToFrontend(user: any): User {
   if (!user) return null as any
@@ -13,24 +13,22 @@ export function mapUserToFrontend(user: any): User {
 
 export const userService = {
   async getUsers(): Promise<User[]> {
-    const users = await api.get<any[]>('/users')
+    const users = await userApi.getUsers()
     return users.map(mapUserToFrontend)
   },
 
   async updateUserRole(userId: string, role: UserRole): Promise<User> {
-    const response = await api.patch<any>(`/users/${userId}/role`, {
-      role: role.toUpperCase(),
-    })
+    const response = await userApi.updateUserRole(userId, role.toUpperCase())
     return mapUserToFrontend(response)
   },
 
   async lockUser(userId: string): Promise<User> {
-    const response = await api.patch<any>(`/users/${userId}/lock`)
+    const response = await userApi.lockUser(userId)
     return mapUserToFrontend(response)
   },
 
   async unlockUser(userId: string): Promise<User> {
-    const response = await api.patch<any>(`/users/${userId}/unlock`)
+    const response = await userApi.unlockUser(userId)
     return mapUserToFrontend(response)
   },
 }

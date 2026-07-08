@@ -1,0 +1,102 @@
+# docker compose up -d          → start all
+# docker compose up -d --build  → rebuild and start all
+
+# ────────────────────────────────────────────────────────────────────────────
+# ChillFilm – Full Stack Docker Compose
+#
+# Services:
+#   mysql        → Database (port 3307)  ← dùng container đang chạy ngoài
+#   qdrant       → Vector store (port 6333) ← dùng container đang chạy ngoài
+#   rag_chatbot  → FastAPI RAG chatbot (port 8000) ← DO docker compose quản lý
+#
+# Lần đầu setup (nếu MySQL/Qdrant chưa chạy):
+#   docker compose --profile full up -d
+#
+# Nếu MySQL/Qdrant đã chạy sẵn (trường hợp thông thường):
+#   docker compose up -d rag_chatbot
+# ────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── MySQL Database (chỉ dùng khi --profile full) ──────────────────────────
+  mysql:
+    profiles: ["full"]
+    image: mysql:latest
+    container_name: movie_streaming_web_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: movie_streaming_web
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - chillfilm_net
+
+  # ── Qdrant Vector Store (chỉ dùng khi --profile full) ─────────────────────
+  qdrant:
+    profiles: ["full"]
+    image: qdrant/qdrant
+    container_name: qdrant_new
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - chillfilm_net
+
+  # ── RAG Chatbot Service ────────────────────────────────────────────────────
+  rag_chatbot:
+    build:
+      context: ./rag_chatbot
+      dockerfile: Dockerfile
+    image: chillfilm-rag:latest
+    container_name: chillfilm_rag
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Dùng host.docker.internal để kết nối MySQL chạy bên ngoài container
+      DB_HOST: host.docker.internal
+      DB_PORT: 3307
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: movie_streaming_web
+      # Điền Gemini API key nếu muốn dùng AI thật (tùy chọn)
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      HOST: 0.0.0.0
+      PORT: 8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - chillfilm_net
+
+# ── Volumes ────────────────────────────────────────────────────────────────
+volumes:
+  mysql_data:
+    name: movie_streaming_web_mysql_data
+  qdrant_data:
+    name: movie_streaming_web_qdrant_data
+
+# ── Network ────────────────────────────────────────────────────────────────
+networks:
+  chillfilm_net:
+    name: chillfilm_net
+    driver: bridge

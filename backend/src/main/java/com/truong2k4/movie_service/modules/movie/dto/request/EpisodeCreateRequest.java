@@ -15,9 +15,10 @@ public class EpisodeCreateRequest {
     @NotNull
     @Min(1)
     Integer episodeNumber;
+    Integer seasonNumber;
     String title;
-    String videoUrl;
     String summary;
+
     String duration;
     String thumbnailUrl;
     LocalDateTime releasedAt;

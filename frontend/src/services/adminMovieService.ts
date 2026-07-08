@@ -1,6 +1,6 @@
-import { api } from './api'
 import { mapMovieToFrontend } from './movieService'
 import type { Movie } from '../types/movie'
+import { movieApi } from '../api/movieApi'
 
 function mapMovieToBackendPayload(movieData: Movie) {
   return {
@@ -29,33 +29,33 @@ function mapMovieToBackendPayload(movieData: Movie) {
 
 export const adminMovieService = {
   async getAdminMovies() {
-    const movies = await api.get<any[]>('/admin/movies')
+    const movies = await movieApi.getAdminMovies()
     return movies.map(mapMovieToFrontend)
   },
 
   async getMovieById(id: string) {
-    const movie = await api.get<any>(`/admin/movies/${id}`)
+    const movie = await movieApi.getAdminMovieById(id)
     return mapMovieToFrontend(movie)
   },
 
   async createMovie(movieData: Movie) {
     const payload = mapMovieToBackendPayload(movieData)
-    const movie = await api.post<any>('/admin/movies', payload)
+    const movie = await movieApi.createMovie(payload)
     return mapMovieToFrontend(movie)
   },
 
   async updateMovie(id: string, movieData: Movie) {
     const payload = mapMovieToBackendPayload(movieData)
-    const movie = await api.put<any>(`/admin/movies/${id}`, payload)
+    const movie = await movieApi.updateMovie(id, payload)
     return mapMovieToFrontend(movie)
   },
 
   async deleteMovie(id: string) {
-    await api.delete<string>(`/admin/movies/${id}`)
+    await movieApi.deleteMovie(id)
   },
 
   async toggleMovieStatus(id: string) {
-    const movie = await api.patch<any>(`/admin/movies/${id}/status`)
+    const movie = await movieApi.toggleMovieStatus(id)
     return mapMovieToFrontend(movie)
   },
 }

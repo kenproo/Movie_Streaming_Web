@@ -36,14 +36,15 @@ public class SearchService {
             saveSearchHistory(request.getKeyword());
         }
 
-        List<Movie> movies = movieRepository.findFilteredMovies(
+        List<Movie> movies = movieRepository.findFilteredMoviesList(
                 MovieStatus.PUBLISHED,
                 request.getType(),
                 request.getGenre(),
                 request.getCountry(),
                 request.getYear(),
                 request.getReleaseStatus(),
-                request.getKeyword()
+                request.getKeyword(),
+                org.springframework.data.domain.Sort.unsorted()
         );
 
         // Sort
@@ -77,8 +78,8 @@ public class SearchService {
         if (keyword == null || keyword.isBlank()) {
             return SearchSuggestionResponse.builder().suggestions(List.of()).build();
         }
-        List<Movie> movies = movieRepository.findFilteredMovies(
-                MovieStatus.PUBLISHED, null, null, null, null, null, keyword);
+        List<Movie> movies = movieRepository.findFilteredMoviesList(
+                MovieStatus.PUBLISHED, null, null, null, null, null, keyword, org.springframework.data.domain.Sort.unsorted());
         List<String> suggestions = movies.stream()
                 .limit(10)
                 .map(Movie::getTitle)

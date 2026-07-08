@@ -18,20 +18,21 @@ public class MovieResponse {
     String originalTitle;
     String slug;
     String description;
-    int year;
+    Integer year;
     String country;
     MovieType type;
-    String quality;
-    String language;
-    double rating;
+    String displayQuality;
+    String displayLanguage;
+    Double rating;
     String duration;
-    int totalEpisodes;
-    int currentEpisode;
+    Integer totalEpisodes;
+    Integer currentEpisode;
     ReleaseStatus releaseStatus;
     MovieStatus status;
-    long views;
+    Long views;
     String posterUrl;
     String backdropUrl;
+    @Deprecated
     String trailerUrl;
     AnimeSeason animeSeason;
     String director;
@@ -40,7 +41,12 @@ public class MovieResponse {
     String ageRating;
     String tmdbId;
     String imdbId;
+    String tvmazeId;
+    String malId;
+    String sourceProvider;
+    LocalDateTime lastSyncedAt;
     Double popularity;
+
     List<String> genres;
     List<String> cast;
     List<String> keywords;

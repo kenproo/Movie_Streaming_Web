@@ -38,10 +38,25 @@ public class Subtitle {
     @Column(length = 1000, nullable = false)
     String subtitleUrl;
 
+    String storageKey;
+
+    String sourceProvider;
+
+    String licenseType;
+
     LocalDateTime createdAt;
+
+    LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
 }

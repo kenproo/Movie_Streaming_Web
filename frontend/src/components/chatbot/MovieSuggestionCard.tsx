@@ -5,6 +5,7 @@
  * Dùng mock data hiện tại, sau này sẽ nhận data thật từ API backend.
  */
 
+import { Link } from 'react-router-dom'
 import type { MovieSuggestion } from '../../services/chatbotService'
 
 interface MovieSuggestionCardProps {
@@ -71,19 +72,21 @@ export function MovieSuggestionCard({ movie }: MovieSuggestionCardProps) {
         </div>
 
         {/* Nút xem phim */}
-        <a
-          href={movie.slug ? `/movie/${movie.slug}` : '#'}
-          className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-green-400 transition-colors hover:text-green-300"
-        >
-          <svg className="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Xem phim
-        </a>
+        <div className="mt-2">
+          <Link
+            to={movie.slug ? `/movie/${movie.slug}` : '#'}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 px-3 py-1.5 text-[10px] font-bold text-slate-950 shadow-md shadow-emerald-500/10 hover:from-emerald-400 hover:to-cyan-400 hover:shadow-emerald-500/20 active:scale-95 transition-all duration-200"
+          >
+            <svg className="h-3 w-3 fill-current" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Xem phim
+          </Link>
+        </div>
       </div>
     </div>
   )

@@ -23,24 +23,25 @@ public class MovieCreateRequest {
     String description;
 
     @Min(1900) @Max(2100)
-    int year;
+    Integer year;
 
     String country;
 
     MovieType type;
 
-    String quality;
-    String language;
+    String displayQuality;
+    String displayLanguage;
     String duration;
 
-    int totalEpisodes;
-    int currentEpisode;
+    Integer totalEpisodes;
+    Integer currentEpisode;
 
     ReleaseStatus releaseStatus;
     MovieStatus status;
 
     String posterUrl;
     String backdropUrl;
+    @Deprecated
     String trailerUrl;
     AnimeSeason animeSeason;
 
@@ -50,7 +51,11 @@ public class MovieCreateRequest {
     String ageRating;
     String tmdbId;
     String imdbId;
+    String tvmazeId;
+    String malId;
+    String sourceProvider;
     Double popularity;
+
 
     List<String> genres;
     List<String> cast;

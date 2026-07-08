@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
 import { ArrowLeft, ChartColumn, Film, FlagTriangleRight, LayoutDashboard, MessageSquare, PlusCircle, Users, X } from 'lucide-react'
+import logo from '../../assets/logo.jpg'
 
 const items = [
   { label: 'Dashboard', to: '/admin', icon: LayoutDashboard },
@@ -28,7 +29,7 @@ export function AdminSidebar({ mobileOpen = false, onClose }: AdminSidebarProps)
       >
         <div className="mb-6 flex items-center justify-between gap-3 lg:hidden">
           <Link to="/admin" onClick={onClose} className="flex items-center gap-2 text-lg font-bold text-white">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">CF</span>
+            <img src={logo} alt="ChillFilm Logo" className="h-10 w-10 rounded-xl object-cover" />
             ChillFilm Admin
           </Link>
           <button type="button" onClick={onClose} className="rounded-xl border border-white/10 bg-white/5 p-2 text-white">
@@ -37,7 +38,7 @@ export function AdminSidebar({ mobileOpen = false, onClose }: AdminSidebarProps)
         </div>
 
         <Link to="/admin" className="mb-6 hidden items-center gap-2 text-lg font-bold text-white lg:flex">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">CF</span>
+          <img src={logo} alt="ChillFilm Logo" className="h-10 w-10 rounded-xl object-cover" />
           ChillFilm Admin
         </Link>
 

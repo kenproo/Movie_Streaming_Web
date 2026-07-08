@@ -4,6 +4,7 @@ import com.truong2k4.movie_service.common.dto.ApiResponse;
 import com.truong2k4.movie_service.modules.watch.dto.request.UpdateWatchProgressRequest;
 import com.truong2k4.movie_service.modules.watch.dto.response.WatchHistoryResponse;
 import com.truong2k4.movie_service.modules.watch.dto.response.WatchProgressResponse;
+import com.truong2k4.movie_service.modules.watch.dto.response.WatchProgressDetailResponse;
 import com.truong2k4.movie_service.modules.watch.service.WatchService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -34,6 +35,13 @@ public class WatchController {
     public ApiResponse<List<WatchHistoryResponse>> getHistory() {
         return ApiResponse.<List<WatchHistoryResponse>>builder()
                 .result(watchService.getHistory())
+                .build();
+    }
+
+    @GetMapping("/active-progress")
+    public ApiResponse<List<WatchProgressDetailResponse>> getActiveProgresses() {
+        return ApiResponse.<List<WatchProgressDetailResponse>>builder()
+                .result(watchService.getActiveProgresses())
                 .build();
     }
 

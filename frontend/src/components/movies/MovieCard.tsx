@@ -1,10 +1,20 @@
-import { Play, Star } from 'lucide-react'
+import { Play, Star, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Movie } from '../../types/movie'
 import { formatRating, formatViews } from '../../utils/format'
+import { useLibrary } from '../../contexts/LibraryContext'
 
 export function MovieCard({ movie }: { movie: Movie }) {
+  const { isFavorite, toggleFavorite } = useLibrary()
+  const favorited = isFavorite(movie.id)
+
   const episodeLabel = movie.type === 'single' ? 'Full' : `${movie.currentEpisode}/${movie.totalEpisodes}`
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleFavorite(movie)
+  }
 
   return (
     <article className="group app-surface relative overflow-hidden rounded-[1.5rem] border transition duration-300 hover:-translate-y-1.5 hover:border-cyan-300/40 hover:shadow-2xl hover:shadow-cyan-950/20">
@@ -24,6 +34,17 @@ export function MovieCard({ movie }: { movie: Movie }) {
           <Star className="h-3 w-3 fill-current" />
           {formatRating(movie.rating)}
         </div>
+
+        <button
+          type="button"
+          onClick={handleFavoriteClick}
+          className={`absolute right-3 top-11 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/85 text-slate-300 backdrop-blur border border-white/5 shadow-md transition-all hover:scale-110 active:scale-90 cursor-pointer ${
+            favorited ? 'text-rose-500 hover:text-rose-400' : 'hover:text-white'
+          }`}
+          aria-label="Yêu thích"
+        >
+          <Heart className={`h-3.5 w-3.5 ${favorited ? 'fill-current' : ''}`} />
+        </button>
 
         <div className="absolute inset-x-0 bottom-0 translate-y-4 px-3 pb-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <Link

@@ -62,7 +62,7 @@ public class AuthenticationService {
 
         try {
             verifyToken(token, false);
-        } catch (AppException | JOSEException | ParseException e) {
+        } catch (Exception e) {
             isValid = false;
         }
 

@@ -22,4 +22,11 @@ public interface MovieVideoSourceRepository extends JpaRepository<MovieVideoSour
     List<MovieVideoSource> findByMovieIdAndIsActiveTrue(UUID movieId);
 
     Optional<MovieVideoSource> findFirstByMovieIdAndIsDemoTrueAndIsActiveTrue(UUID movieId);
+
+    Optional<MovieVideoSource> findByMovieIdAndTypeAndProviderAndVideoUrl(
+            UUID movieId,
+            VideoType type,
+            VideoProvider provider,
+            String videoUrl
+    );
 }
