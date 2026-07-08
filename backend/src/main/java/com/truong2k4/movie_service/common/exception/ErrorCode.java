@@ -14,6 +14,9 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1005, "User does not exist", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
+    INVALID_EMAIL(1008, "Email is invalid or improperly formatted", HttpStatus.BAD_REQUEST),
+    NAME_REQUIRED(1009, "Name is required", HttpStatus.BAD_REQUEST),
+    PASSWORD_REQUIRED(1010, "Password is required", HttpStatus.BAD_REQUEST),
     
     // Movie & Streaming errors
     MOVIE_NOT_FOUND(2001, "Movie not found", HttpStatus.NOT_FOUND),

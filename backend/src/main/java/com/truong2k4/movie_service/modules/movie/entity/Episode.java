@@ -26,10 +26,9 @@ public class Episode {
     @Column(nullable = false)
     int episodeNumber;
 
-    String title;
+    Integer seasonNumber;
 
-    @Column(length = 1000)
-    String videoUrl;
+    String title;
 
     @Column(columnDefinition = "TEXT")
     String summary;
@@ -40,6 +39,10 @@ public class Episode {
     String thumbnailUrl;
 
     LocalDateTime releasedAt;
+
+    LocalDateTime createdAt;
+
+    LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "movie_id", nullable = false)
@@ -53,4 +56,16 @@ public class Episode {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "episode", fetch = FetchType.LAZY)
     @Builder.Default
     List<Subtitle> subtitles = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
 }

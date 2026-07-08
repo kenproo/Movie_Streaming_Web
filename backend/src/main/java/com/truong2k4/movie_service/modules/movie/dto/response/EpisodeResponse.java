@@ -13,10 +13,13 @@ import java.util.UUID;
 public class EpisodeResponse {
     UUID id;
     int episodeNumber;
+    Integer seasonNumber;
     String title;
-    String videoUrl;
     String summary;
     String duration;
     String thumbnailUrl;
     LocalDateTime releasedAt;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+
 }

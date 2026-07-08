@@ -33,10 +33,14 @@ public class MovieMapper {
                 .rating(movie.getRating())
                 .views(movie.getViews())
                 .releaseStatus(movie.getReleaseStatus())
-                .quality(movie.getQuality())
+                .displayQuality(movie.getDisplayQuality())
+                .displayLanguage(movie.getDisplayLanguage())
                 .duration(movie.getDuration())
                 .totalEpisodes(movie.getTotalEpisodes())
                 .currentEpisode(movie.getCurrentEpisode())
+                .tvmazeId(movie.getTvmazeId())
+                .malId(movie.getMalId())
+                .sourceProvider(movie.getSourceProvider())
                 .build();
     }
 
@@ -51,8 +55,8 @@ public class MovieMapper {
                 .year(movie.getYear())
                 .country(movie.getCountry())
                 .type(movie.getType())
-                .quality(movie.getQuality())
-                .language(movie.getLanguage())
+                .displayQuality(movie.getDisplayQuality())
+                .displayLanguage(movie.getDisplayLanguage())
                 .rating(movie.getRating())
                 .duration(movie.getDuration())
                 .totalEpisodes(movie.getTotalEpisodes())
@@ -70,6 +74,10 @@ public class MovieMapper {
                 .ageRating(movie.getAgeRating())
                 .tmdbId(movie.getTmdbId())
                 .imdbId(movie.getImdbId())
+                .tvmazeId(movie.getTvmazeId())
+                .malId(movie.getMalId())
+                .sourceProvider(movie.getSourceProvider())
+                .lastSyncedAt(movie.getLastSyncedAt())
                 .popularity(movie.getPopularity())
                 .genres(movie.getGenres())
                 .cast(movie.getCast())
@@ -92,8 +100,8 @@ public class MovieMapper {
                 .year(movie.getYear())
                 .country(movie.getCountry())
                 .type(movie.getType())
-                .quality(movie.getQuality())
-                .language(movie.getLanguage())
+                .displayQuality(movie.getDisplayQuality())
+                .displayLanguage(movie.getDisplayLanguage())
                 .rating(movie.getRating())
                 .duration(movie.getDuration())
                 .totalEpisodes(movie.getTotalEpisodes())
@@ -111,6 +119,10 @@ public class MovieMapper {
                 .ageRating(movie.getAgeRating())
                 .tmdbId(movie.getTmdbId())
                 .imdbId(movie.getImdbId())
+                .tvmazeId(movie.getTvmazeId())
+                .malId(movie.getMalId())
+                .sourceProvider(movie.getSourceProvider())
+                .lastSyncedAt(movie.getLastSyncedAt())
                 .popularity(movie.getPopularity())
                 .genres(movie.getGenres())
                 .cast(movie.getCast())
@@ -132,8 +144,8 @@ public class MovieMapper {
                 .year(request.getYear())
                 .country(request.getCountry())
                 .type(request.getType())
-                .quality(request.getQuality())
-                .language(request.getLanguage())
+                .displayQuality(request.getDisplayQuality())
+                .displayLanguage(request.getDisplayLanguage())
                 .duration(request.getDuration())
                 .totalEpisodes(request.getTotalEpisodes())
                 .currentEpisode(request.getCurrentEpisode())
@@ -149,6 +161,9 @@ public class MovieMapper {
                 .ageRating(request.getAgeRating())
                 .tmdbId(request.getTmdbId())
                 .imdbId(request.getImdbId())
+                .tvmazeId(request.getTvmazeId())
+                .malId(request.getMalId())
+                .sourceProvider(request.getSourceProvider())
                 .popularity(request.getPopularity())
                 .genres(request.getGenres() != null ? request.getGenres() : Collections.emptyList())
                 .cast(request.getCast() != null ? request.getCast() : Collections.emptyList())
@@ -165,8 +180,8 @@ public class MovieMapper {
         if (request.getYear() != null) movie.setYear(request.getYear());
         if (request.getCountry() != null) movie.setCountry(request.getCountry());
         if (request.getType() != null) movie.setType(request.getType());
-        if (request.getQuality() != null) movie.setQuality(request.getQuality());
-        if (request.getLanguage() != null) movie.setLanguage(request.getLanguage());
+        if (request.getDisplayQuality() != null) movie.setDisplayQuality(request.getDisplayQuality());
+        if (request.getDisplayLanguage() != null) movie.setDisplayLanguage(request.getDisplayLanguage());
         if (request.getDuration() != null) movie.setDuration(request.getDuration());
         if (request.getTotalEpisodes() != null) movie.setTotalEpisodes(request.getTotalEpisodes());
         if (request.getCurrentEpisode() != null) movie.setCurrentEpisode(request.getCurrentEpisode());
@@ -182,6 +197,9 @@ public class MovieMapper {
         if (request.getAgeRating() != null) movie.setAgeRating(request.getAgeRating());
         if (request.getTmdbId() != null) movie.setTmdbId(request.getTmdbId());
         if (request.getImdbId() != null) movie.setImdbId(request.getImdbId());
+        if (request.getTvmazeId() != null) movie.setTvmazeId(request.getTvmazeId());
+        if (request.getMalId() != null) movie.setMalId(request.getMalId());
+        if (request.getSourceProvider() != null) movie.setSourceProvider(request.getSourceProvider());
         if (request.getPopularity() != null) movie.setPopularity(request.getPopularity());
         if (request.getGenres() != null) movie.setGenres(request.getGenres());
         if (request.getCast() != null) movie.setCast(request.getCast());
@@ -194,12 +212,14 @@ public class MovieMapper {
         return EpisodeResponse.builder()
                 .id(episode.getId())
                 .episodeNumber(episode.getEpisodeNumber())
+                .seasonNumber(episode.getSeasonNumber())
                 .title(episode.getTitle())
-                .videoUrl(episode.getVideoUrl())
                 .summary(episode.getSummary())
                 .duration(episode.getDuration())
                 .thumbnailUrl(episode.getThumbnailUrl())
                 .releasedAt(episode.getReleasedAt())
+                .createdAt(episode.getCreatedAt())
+                .updatedAt(episode.getUpdatedAt())
                 .build();
     }
 

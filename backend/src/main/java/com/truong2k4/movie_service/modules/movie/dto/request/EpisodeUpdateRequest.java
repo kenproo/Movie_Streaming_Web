@@ -11,9 +11,10 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EpisodeUpdateRequest {
     Integer episodeNumber;
+    Integer seasonNumber;
     String title;
-    String videoUrl;
     String summary;
+
     String duration;
     String thumbnailUrl;
     LocalDateTime releasedAt;

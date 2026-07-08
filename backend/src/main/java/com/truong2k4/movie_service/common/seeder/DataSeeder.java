@@ -49,10 +49,10 @@ public class DataSeeder implements CommandLineRunner {
             seedUsers();
         }
 
-        if (movieRepository.count() == 0) {
-            log.info("Seeding movies...");
-            seedMovies();
-        }
+        // if (movieRepository.count() == 0) {
+        //     log.info("Seeding movies...");
+        //     seedMovies();
+        // }
 
         if (dailyTrafficRepository.count() == 0) {
             log.info("Seeding daily traffic analytics...");
@@ -152,8 +152,8 @@ public class DataSeeder implements CommandLineRunner {
                 .year(year)
                 .country(country)
                 .genres(genres)
-                .quality(quality)
-                .language(language)
+                .displayQuality(quality)
+                .displayLanguage(language)
                 .rating(rating)
                 .totalEpisodes(totalEpisodes)
                 .currentEpisode(currentEpisode)
@@ -171,17 +171,32 @@ public class DataSeeder implements CommandLineRunner {
 
         List<Episode> episodes = new ArrayList<>();
         for (int i = 1; i <= currentEpisode; i++) {
-            episodes.add(Episode.builder()
+            Episode episode = Episode.builder()
                     .episodeNumber(i)
+                    .seasonNumber(1)
                     .title("Tập " + i)
-                    .videoUrl("/videos/sample.mp4")
                     .movie(movie)
-                    .build());
+                    .build();
+
+            EpisodeSource source = EpisodeSource.builder()
+                    .episode(episode)
+                    .serverName("Default Server")
+                    .quality("1080p")
+                    .videoUrl("/videos/sample.mp4")
+                    .isDefault(true)
+                    .isActive(true)
+                    .isDemo(true)
+                    .provider(VideoProvider.LOCAL)
+                    .build();
+
+            episode.setSources(new ArrayList<>(List.of(source)));
+            episodes.add(episode);
         }
         movie.setEpisodes(episodes);
 
         return movie;
     }
+
 
     private void createMovieAnalytics(UUID movieId, int views, int likes, int comments, int watchTime) {
         MovieAnalytics analytics = MovieAnalytics.builder()

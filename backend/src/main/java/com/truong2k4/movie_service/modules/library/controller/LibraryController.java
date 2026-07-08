@@ -27,6 +27,20 @@ public class LibraryController {
                 .build();
     }
 
+    @GetMapping("/favorites")
+    public ApiResponse<java.util.List<com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse>> getFavoriteMoviesDetails() {
+        return ApiResponse.<java.util.List<com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse>>builder()
+                .result(libraryService.getFavoriteMoviesDetails())
+                .build();
+    }
+
+    @GetMapping("/follows")
+    public ApiResponse<java.util.List<com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse>> getFollowMoviesDetails() {
+        return ApiResponse.<java.util.List<com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse>>builder()
+                .result(libraryService.getFollowMoviesDetails())
+                .build();
+    }
+
     @GetMapping("/favorite/{movieId}")
     public ApiResponse<Boolean> isFavorite(@PathVariable UUID movieId) {
         return ApiResponse.<Boolean>builder()

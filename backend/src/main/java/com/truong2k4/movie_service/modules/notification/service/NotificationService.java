@@ -54,6 +54,21 @@ public class NotificationService {
         notificationRepository.saveAll(unread);
     }
 
+    @Transactional
+    public void broadcastNotification(String title, String content, String targetUrl) {
+        List<User> allUsers = userRepository.findAll();
+        List<Notification> notifications = allUsers.stream().map(user -> Notification.builder()
+                .userId(user.getId())
+                .type(com.truong2k4.movie_service.modules.notification.entity.NotificationType.SYSTEM)
+                .title(title)
+                .content(content)
+                .targetUrl(targetUrl != null ? targetUrl : "")
+                .read(false)
+                .build()
+        ).collect(Collectors.toList());
+        notificationRepository.saveAll(notifications);
+    }
+
     private NotificationResponse toResponse(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())

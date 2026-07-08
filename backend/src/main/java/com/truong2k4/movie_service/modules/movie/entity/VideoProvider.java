@@ -7,5 +7,7 @@ public enum VideoProvider {
     S3,
     R2,
     BUNNY,
-    LOCAL
+    LOCAL,
+    PIXABAY,
+    WIKIMEDIA
 }

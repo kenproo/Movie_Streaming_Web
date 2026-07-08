@@ -7,6 +7,9 @@ import com.truong2k4.movie_service.modules.movie.repository.MovieRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +25,32 @@ import java.util.stream.Collectors;
 public class MovieService {
 
     MovieRepository movieRepository;
+    com.truong2k4.movie_service.modules.library.repository.FollowRepository followRepository;
+    com.truong2k4.movie_service.modules.notification.repository.NotificationRepository notificationRepository;
 
-    public List<Movie> getPublishedMovies(MovieType type, String genre, String country, Integer year, ReleaseStatus releaseStatus, String keyword) {
-        return movieRepository.findFilteredMovies(
+    public Page<Movie> getPublishedMovies(MovieType type, String genre, String country, Integer year, ReleaseStatus releaseStatus, String keyword, Pageable pageable) {
+        return movieRepository.findFilteredMoviesPage(
                 MovieStatus.PUBLISHED,
                 type,
                 genre,
                 country,
                 year,
                 releaseStatus,
-                keyword
+                keyword,
+                pageable
+        );
+    }
+
+    public List<Movie> getPublishedMovies(MovieType type, String genre, String country, Integer year, ReleaseStatus releaseStatus, String keyword, Sort sort) {
+        return movieRepository.findFilteredMoviesList(
+                MovieStatus.PUBLISHED,
+                type,
+                genre,
+                country,
+                year,
+                releaseStatus,
+                keyword,
+                sort
         );
     }
 
@@ -73,7 +92,18 @@ public class MovieService {
 
         movieData.setCreatedAt(LocalDateTime.now());
         movieData.setUpdatedAt(LocalDateTime.now());
-        movieData.setViews(0);
+        movieData.setViews(0L);
+
+        // Auto-create 1 default episode for SINGLE movie
+        if (movieData.getType() == MovieType.SINGLE && (movieData.getEpisodes() == null || movieData.getEpisodes().isEmpty())) {
+            Episode defaultEpisode = Episode.builder()
+                    .movie(movieData)
+                    .episodeNumber(1)
+                    .seasonNumber(1)
+                    .title("Full Movie")
+                    .build();
+            movieData.setEpisodes(new java.util.ArrayList<>(java.util.List.of(defaultEpisode)));
+        }
 
         if (movieData.getEpisodes() != null) {
             movieData.getEpisodes().forEach(episode -> episode.setMovie(movieData));
@@ -94,8 +124,8 @@ public class MovieService {
         existing.setYear(movieData.getYear());
         existing.setCountry(movieData.getCountry());
         existing.setType(movieData.getType());
-        existing.setQuality(movieData.getQuality());
-        existing.setLanguage(movieData.getLanguage());
+        existing.setDisplayQuality(movieData.getDisplayQuality());
+        existing.setDisplayLanguage(movieData.getDisplayLanguage());
         existing.setRating(movieData.getRating());
         existing.setDuration(movieData.getDuration());
         existing.setTotalEpisodes(movieData.getTotalEpisodes());
@@ -106,6 +136,10 @@ public class MovieService {
         existing.setBackdropUrl(movieData.getBackdropUrl());
         existing.setTrailerUrl(movieData.getTrailerUrl());
         existing.setAnimeSeason(movieData.getAnimeSeason());
+        existing.setTvmazeId(movieData.getTvmazeId());
+        existing.setMalId(movieData.getMalId());
+        existing.setSourceProvider(movieData.getSourceProvider());
+        existing.setLastSyncedAt(movieData.getLastSyncedAt());
         existing.setUpdatedAt(LocalDateTime.now());
 
         if (movieData.getGenres() != null) {
@@ -116,6 +150,10 @@ public class MovieService {
         }
 
         // Handle updating child episodes list
+        List<Integer> existingEpisodeNums = existing.getEpisodes().stream()
+                .map(Episode::getEpisodeNumber)
+                .collect(Collectors.toList());
+
         existing.getEpisodes().clear();
         if (movieData.getEpisodes() != null) {
             movieData.getEpisodes().forEach(episode -> {
@@ -124,8 +162,22 @@ public class MovieService {
             });
         }
 
-        return movieRepository.save(existing);
+        Movie saved = movieRepository.save(existing);
+
+        // Notify followers of any new episode
+        if (movieData.getEpisodes() != null) {
+            List<Episode> newEpisodes = saved.getEpisodes().stream()
+                    .filter(ep -> !existingEpisodeNums.contains(ep.getEpisodeNumber()))
+                    .collect(Collectors.toList());
+
+            if (!newEpisodes.isEmpty()) {
+                notifyFollowersNewEpisode(saved, newEpisodes);
+            }
+        }
+
+        return saved;
     }
+
 
     public void deleteMovie(UUID id) {
         if (!movieRepository.existsById(id)) {
@@ -145,5 +197,30 @@ public class MovieService {
         }
         movie.setUpdatedAt(LocalDateTime.now());
         return movieRepository.save(movie);
+    }
+
+    private void notifyFollowersNewEpisode(Movie movie, List<Episode> newEpisodes) {
+        List<com.truong2k4.movie_service.modules.library.entity.Follow> follows = followRepository.findAllByMovieId(movie.getId());
+        if (follows.isEmpty()) return;
+
+        for (Episode episode : newEpisodes) {
+            String title = "Tập mới: " + movie.getTitle();
+            String content = "Tập " + episode.getEpisodeNumber() + " (" + (episode.getTitle() != null && !episode.getTitle().isBlank() ? episode.getTitle() : "Tập " + episode.getEpisodeNumber()) + ") đã được cập nhật!";
+            String targetUrl = "/watch/" + movie.getSlug() + "?episode=" + episode.getEpisodeNumber();
+
+            List<com.truong2k4.movie_service.modules.notification.entity.Notification> notifications = follows.stream().map(follow -> com.truong2k4.movie_service.modules.notification.entity.Notification.builder()
+                    .userId(follow.getUserId())
+                    .type(com.truong2k4.movie_service.modules.notification.entity.NotificationType.NEW_EPISODE)
+                    .title(title)
+                    .content(content)
+                    .targetUrl(targetUrl)
+                    .movieId(movie.getId())
+                    .episodeId(episode.getId())
+                    .read(false)
+                    .build()
+            ).collect(Collectors.toList());
+
+            notificationRepository.saveAll(notifications);
+        }
     }
 }

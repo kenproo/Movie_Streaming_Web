@@ -11,6 +11,7 @@ import java.util.UUID;
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, UUID> {
     List<Follow> findAllByUserId(UUID userId);
+    List<Follow> findAllByMovieId(UUID movieId);
     Optional<Follow> findByUserIdAndMovieId(UUID userId, UUID movieId);
     boolean existsByUserIdAndMovieId(UUID userId, UUID movieId);
 }

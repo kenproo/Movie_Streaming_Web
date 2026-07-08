@@ -19,15 +19,20 @@ public class MovieSummaryResponse {
     String slug;
     String posterUrl;
     String backdropUrl;
-    int year;
+    Integer year;
     String country;
     MovieType type;
     List<String> genres;
-    double rating;
-    long views;
+    Double rating;
+    Long views;
     ReleaseStatus releaseStatus;
-    String quality;
+    String displayQuality;
+    String displayLanguage;
     String duration;
-    int totalEpisodes;
-    int currentEpisode;
+    Integer totalEpisodes;
+    Integer currentEpisode;
+    String tvmazeId;
+    String malId;
+    String sourceProvider;
+
 }

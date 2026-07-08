@@ -12,14 +12,14 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterRequest {
-    @NotBlank(message = "INVALID_INPUT")
+    @NotBlank(message = "NAME_REQUIRED")
     String name;
 
-    @NotBlank(message = "INVALID_INPUT")
-    @Email(message = "INVALID_INPUT")
+    @NotBlank(message = "INVALID_EMAIL")
+    @Email(message = "INVALID_EMAIL")
     String email;
 
-    @NotBlank(message = "INVALID_INPUT")
+    @NotBlank(message = "PASSWORD_REQUIRED")
     @Size(min = 6, message = "INVALID_PASSWORD")
     String password;
 }

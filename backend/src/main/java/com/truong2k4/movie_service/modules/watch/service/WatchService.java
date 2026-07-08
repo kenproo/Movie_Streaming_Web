@@ -6,11 +6,14 @@ import com.truong2k4.movie_service.modules.library.entity.WatchHistory;
 import com.truong2k4.movie_service.modules.library.entity.WatchProgress;
 import com.truong2k4.movie_service.modules.library.repository.WatchHistoryRepository;
 import com.truong2k4.movie_service.modules.library.repository.WatchProgressRepository;
+import com.truong2k4.movie_service.modules.movie.repository.MovieRepository;
+import com.truong2k4.movie_service.modules.movie.mapper.MovieMapper;
 import com.truong2k4.movie_service.modules.user.entity.User;
 import com.truong2k4.movie_service.modules.user.repository.UserRepository;
 import com.truong2k4.movie_service.modules.watch.dto.request.UpdateWatchProgressRequest;
 import com.truong2k4.movie_service.modules.watch.dto.response.WatchHistoryResponse;
 import com.truong2k4.movie_service.modules.watch.dto.response.WatchProgressResponse;
+import com.truong2k4.movie_service.modules.watch.dto.response.WatchProgressDetailResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,11 +34,18 @@ public class WatchService {
     WatchProgressRepository watchProgressRepository;
     WatchHistoryRepository watchHistoryRepository;
     UserRepository userRepository;
+    MovieRepository movieRepository;
+    MovieMapper movieMapper;
 
     @Transactional
     public WatchProgressResponse updateProgress(UpdateWatchProgressRequest request) {
         User user = getCurrentUser();
         UUID userId = user.getId();
+
+        int dur = request.getDurationSeconds() != null ? request.getDurationSeconds() : 0;
+        int cur = request.getProgressSeconds();
+        double percent = dur > 0 ? (double) cur / dur * 100 : 0;
+        boolean isCompleted = percent >= 90.0;
 
         WatchProgress progress = watchProgressRepository
                 .findByUserIdAndMovieIdAndEpisodeId(userId, request.getMovieId(), request.getEpisodeId())
@@ -46,6 +56,7 @@ public class WatchService {
             if (request.getDurationSeconds() != null) {
                 progress.setDurationSeconds(request.getDurationSeconds());
             }
+            progress.setCompleted(isCompleted);
         } else {
             progress = WatchProgress.builder()
                     .userId(userId)
@@ -54,7 +65,7 @@ public class WatchService {
                     .episodeNumber(request.getEpisodeNumber())
                     .currentTimeSeconds(request.getProgressSeconds())
                     .durationSeconds(request.getDurationSeconds() != null ? request.getDurationSeconds() : 0)
-                    .completed(false)
+                    .completed(isCompleted)
                     .build();
         }
         progress = watchProgressRepository.save(progress);
@@ -75,17 +86,13 @@ public class WatchService {
                                 .build())
                 );
 
-        int dur = progress.getDurationSeconds() != null ? progress.getDurationSeconds() : 0;
-        int cur = progress.getCurrentTimeSeconds() != null ? progress.getCurrentTimeSeconds() : 0;
-        double percent = dur > 0 ? (double) cur / dur * 100 : 0;
-
         return WatchProgressResponse.builder()
                 .id(progress.getId())
                 .movieId(progress.getMovieId())
                 .episodeId(progress.getEpisodeId())
                 .episodeNumber(progress.getEpisodeNumber())
-                .progressSeconds(cur)
-                .durationSeconds(dur)
+                .progressSeconds(progress.getCurrentTimeSeconds())
+                .durationSeconds(progress.getDurationSeconds())
                 .progressPercent(Math.round(percent * 10.0) / 10.0)
                 .updatedAt(progress.getUpdatedAt())
                 .build();
@@ -101,6 +108,35 @@ public class WatchService {
                         .episodeNumber(wh.getEpisodeNumber())
                         .watchedAt(wh.getWatchedAt())
                         .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<WatchProgressDetailResponse> getActiveProgresses() {
+        User user = getCurrentUser();
+        List<WatchProgress> progressList = watchProgressRepository.findByUserIdOrderByUpdatedAtDesc(user.getId());
+
+        return progressList.stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getCompleted()) && p.getCurrentTimeSeconds() > 10)
+                .map(p -> {
+                    com.truong2k4.movie_service.modules.movie.entity.Movie movie = movieRepository.findById(p.getMovieId()).orElse(null);
+                    if (movie == null) return null;
+
+                    int dur = p.getDurationSeconds() != null ? p.getDurationSeconds() : 0;
+                    int cur = p.getCurrentTimeSeconds() != null ? p.getCurrentTimeSeconds() : 0;
+                    double percent = dur > 0 ? (double) cur / dur * 100 : 0;
+
+                    return WatchProgressDetailResponse.builder()
+                            .id(p.getId())
+                            .movie(movieMapper.toResponse(movie))
+                            .episodeId(p.getEpisodeId())
+                            .episodeNumber(p.getEpisodeNumber())
+                            .progressSeconds(cur)
+                            .durationSeconds(dur)
+                            .progressPercent(Math.round(percent * 10.0) / 10.0)
+                            .updatedAt(p.getUpdatedAt())
+                            .build();
+                })
+                .filter(java.util.Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
