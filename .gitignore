@@ -1,0 +1,29 @@
+# local import data
+/import-data/
+/exports/
+/chillfilm_local_export/
+*.jsonl
+poster_download_report.csv
+unmatched_or_missing_posters.csv
+
+# local data/posters
+/posters/
+
+# secrets
+.env
+.env.*
+application-secret.yml
+aws-credentials*
+kaggle.json
+*secret*
+*jwt*
+*key*
+
+# Python
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
