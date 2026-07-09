@@ -1,0 +1,12 @@
+target/
+.mvn/
+mvnw
+mvnw.cmd
+.git/
+.settings/
+.classpath
+.project
+*.log
+*.tmp
+*.bak
+docker-compose*
