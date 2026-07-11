@@ -5,7 +5,7 @@
  * Hỗ trợ: tin nhắn user (phải), tin nhắn bot (trái), trạng thái loading.
  */
 
-import { Bot } from 'lucide-react'
+import { AnimatedBot } from './AnimatedBot'
 import type { MovieSuggestion } from '../../services/chatbotService'
 import { MovieSuggestionCard } from './MovieSuggestionCard'
 
@@ -29,7 +29,7 @@ function BotAvatar() {
   return (
     <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 p-[1px] shadow-md shadow-emerald-500/10">
       <div className="flex h-full w-full items-center justify-center rounded-[7px] bg-slate-950">
-        <Bot className="h-3.5 w-3.5 text-emerald-400" strokeWidth={1.8} />
+        <AnimatedBot size="sm" />
       </div>
     </div>
   )

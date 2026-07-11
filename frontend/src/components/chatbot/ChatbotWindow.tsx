@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import { Bot } from 'lucide-react'
+import { AnimatedBot } from './AnimatedBot'
 import type { Message } from './ChatMessage'
 import { ChatMessage } from './ChatMessage'
 import { sendChatMessage } from '../../services/chatbotService'
@@ -143,7 +143,7 @@ export function ChatbotWindow({ onClose }: ChatbotWindowProps) {
         {/* Bot avatar */}
         <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 p-[1px] shadow-lg shadow-emerald-500/20">
           <div className="flex h-full w-full items-center justify-center rounded-[11px] bg-slate-950">
-            <Bot className="h-[15px] w-[15px] text-emerald-400" strokeWidth={1.8} />
+            <AnimatedBot size="sm" />
           </div>
         </div>
 

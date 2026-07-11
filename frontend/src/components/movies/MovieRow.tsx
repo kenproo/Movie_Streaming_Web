@@ -17,8 +17,8 @@ export function MovieRow({ title, movies, to }: { title: string; movies: Movie[]
           </Link>
         ) : null}
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 xl:grid-cols-6">
-        {movies.slice(0, 6).map((movie) => (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
+        {movies.slice(0, 5).map((movie) => (
           <MovieCard key={movie.id} movie={movie} />
         ))}
       </div>

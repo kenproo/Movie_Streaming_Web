@@ -22,8 +22,8 @@ export function WatchPlayer({ episode, dimmed = false, initialTime = 0, onProgre
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Use a public sample video that is guaranteed to load
-  const videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+  // Use the actual episode URL if available, otherwise fall back to empty to trigger loading/error state
+  const videoUrl = episode.videoUrl || ''
 
   useEffect(() => {
     setIsLoading(true)
@@ -94,6 +94,10 @@ export function WatchPlayer({ episode, dimmed = false, initialTime = 0, onProgre
 
   const handlePlaying = () => {
     setIsLoading(false)
+  }
+
+  const handleVideoError = () => {
+    setIsLoading(true)
   }
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,6 +178,7 @@ export function WatchPlayer({ episode, dimmed = false, initialTime = 0, onProgre
         onLoadedMetadata={handleLoadedMetadata}
         onWaiting={handleWaiting}
         onPlaying={handlePlaying}
+        onError={handleVideoError}
         playsInline
       />
 
@@ -188,7 +193,9 @@ export function WatchPlayer({ episode, dimmed = false, initialTime = 0, onProgre
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-10 w-10 animate-spin text-lime-400" />
-            <p className="text-sm font-semibold text-slate-200">Đang tải luồng phát...</p>
+            <p className="text-sm font-semibold text-slate-200">
+              {!videoUrl ? 'Đang chờ nguồn phát video...' : 'Đang tải luồng phát...'}
+            </p>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { Bot } from 'lucide-react'
+import { AnimatedBot } from './AnimatedBot'
 
 interface ChatbotButtonProps {
   isOpen: boolean
@@ -55,7 +55,7 @@ export function ChatbotButton({ isOpen, onClick, hasUnread = false }: ChatbotBut
           isOpen ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
         }`}
       >
-        <Bot className="h-6 w-6 text-emerald-400 transition-colors duration-300 group-hover:text-cyan-400" strokeWidth={1.8} />
+        <AnimatedBot size="lg" />
       </span>
 
       {/* Unread notification badge */}
