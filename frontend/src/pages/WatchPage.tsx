@@ -327,21 +327,21 @@ export function WatchPage() {
         </aside>
       </section>
 
-      {movieWithEpisodes ? (
-        <CommentSection movieId={movieWithEpisodes.id} />
-      ) : (
+      {loading ? (
         <div className="py-10 text-center text-slate-400 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-700 border-t-lime-400"></div>
           <p className="mt-2 text-xs">Đang tải bình luận...</p>
         </div>
+      ) : (
+        <CommentSection movieId={movieWithEpisodes?.id || slug || 'default'} />
       )}
 
-      {relatedMovies && relatedMovies.length > 0 ? (
-        <MovieRow title="Phim đề xuất" movies={relatedMovies} />
-      ) : (
+      {loading ? (
         <div className="py-10 text-center text-slate-500">
           Đang tải danh sách phim đề xuất...
         </div>
+      ) : (
+        <MovieRow title="Phim đề xuất" movies={relatedMovies} />
       )}
 
       {reportOpen ? (

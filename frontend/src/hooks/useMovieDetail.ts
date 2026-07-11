@@ -30,6 +30,13 @@ export function useMovieDetail(slug?: string) {
           } catch (err) {
             console.error('Failed to load related movies:', err)
           }
+        } else {
+          try {
+            const fallbackMovies = await movieService.getMovies()
+            if (active) setRelatedMovies(fallbackMovies)
+          } catch (err) {
+            console.error('Failed to load fallback movies:', err)
+          }
         }
       })
       .catch((err) => {
