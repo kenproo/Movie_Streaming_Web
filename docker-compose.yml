@@ -56,6 +56,19 @@ services:
     networks:
       - chillfilm_net
 
+  # ── Frontend Service (React + Nginx) ──────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: chillfilm-frontend:latest
+    container_name: chillfilm_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - chillfilm_net
+
   # ── RAG Chatbot Service ────────────────────────────────────────────────────
   rag_chatbot:
     build:
