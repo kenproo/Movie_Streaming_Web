@@ -29,13 +29,13 @@ export function ChatbotWidget() {
         className={`
           fixed z-[999]
           bottom-[88px] right-6
-          w-[360px] h-[500px]
+          w-[380px] h-[520px]
           max-sm:bottom-[80px] max-sm:right-3 max-sm:left-3 max-sm:w-auto max-sm:h-[65dvh]
-          transition-all duration-300 ease-out
+          transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
           ${
             isOpen
               ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
-              : 'opacity-0 translate-y-3 scale-95 pointer-events-none'
+              : 'opacity-0 translate-y-6 scale-[0.92] pointer-events-none blur-[2px]'
           }
         `}
       >

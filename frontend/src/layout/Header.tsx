@@ -281,7 +281,7 @@ export function Header() {
 
   return (
     <header className="app-header sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-[1600px] items-center gap-3 px-4 py-3 sm:px-6 lg:px-10 xl:px-16">
         <Link to="/" className="group relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-500 p-[1.5px] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20" aria-label="ChillFilm Home">
           <img src={logo} alt="ChillFilm Logo" width={56} height={56} className="h-14 w-14 rounded-[14px] object-cover bg-slate-950" />
         </Link>
@@ -353,7 +353,7 @@ export function Header() {
 
       {mobileOpen ? (
         <div className="app-header animate-dropdown-in border-t lg:hidden">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6">
+          <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 sm:px-6">
             <form onSubmit={submitSearch} className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1.5 accent-ring">
               <Search className="h-4 w-4 text-app-muted" />
               <input

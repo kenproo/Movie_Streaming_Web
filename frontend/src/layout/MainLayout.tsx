@@ -30,7 +30,7 @@ export function MainLayout() {
   return (
     <div className="app-shell relative">
       <Header />
-      <main className="animate-page-in mx-auto w-full max-w-7xl px-4 pb-14 pt-6 sm:px-6 lg:px-8">
+      <main className="animate-page-in mx-auto w-full max-w-[1600px] px-4 pb-14 pt-6 sm:px-6 lg:px-10 xl:px-16">
         <Outlet />
       </main>
       <Footer />
