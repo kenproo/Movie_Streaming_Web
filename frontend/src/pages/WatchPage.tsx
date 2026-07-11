@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ChevronLeft, ChevronRight, Maximize2, MoonStar, Play, Radio, ShieldCheck, Heart } from 'lucide-react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { EmptyState } from '../common/EmptyState'
 import { CommentSection } from '../components/comments/CommentSection'
 import { EpisodeList } from '../components/movies/EpisodeList'
 import { MovieRow } from '../components/movies/MovieRow'
@@ -100,16 +99,7 @@ export function WatchPage() {
     }
   }, [movie])
 
-  if (!loading && !movieWithEpisodes) {
-    return (
-      <EmptyState
-        title="Không tìm thấy phim"
-        description="Phim này chưa tồn tại hoặc hiện không được phát hành."
-        actionLabel="Về trang phim"
-        actionTo="/movies"
-      />
-    )
-  }
+
 
   const handleSendReport = async () => {
     if (!isAuthenticated) {
