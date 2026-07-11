@@ -194,7 +194,7 @@ export function WatchPlayer({ episode, dimmed = false, initialTime = 0, onProgre
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-10 w-10 animate-spin text-lime-400" />
             <p className="text-sm font-semibold text-slate-200">
-              {!videoUrl ? 'Đang chờ nguồn phát video...' : 'Đang tải luồng phát...'}
+              Đang tải video...
             </p>
           </div>
         </div>

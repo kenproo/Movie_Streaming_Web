@@ -100,16 +100,7 @@ export function WatchPage() {
     }
   }, [movie])
 
-  if (loading) {
-    return (
-      <div className="py-20 text-center text-slate-400">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-700 border-t-lime-400"></div>
-        <p className="mt-3 text-sm">Đang tải phim...</p>
-      </div>
-    )
-  }
-
-  if (!movieWithEpisodes || !activeEpisode || !prevEpisode || !nextEpisode) {
+  if (!loading && !movieWithEpisodes) {
     return (
       <EmptyState
         title="Không tìm thấy phim"
@@ -125,6 +116,8 @@ export function WatchPage() {
       openLoginPrompt()
       return
     }
+
+    if (!movieWithEpisodes) return
 
     setSubmittingReport(true)
     try {
@@ -145,7 +138,9 @@ export function WatchPage() {
       openLoginPrompt()
       return
     }
-    toggleFollow(movieWithEpisodes as any)
+    if (movieWithEpisodes) {
+      toggleFollow(movieWithEpisodes as any)
+    }
   }
 
   const handleToggleFavorite = () => {
@@ -153,7 +148,9 @@ export function WatchPage() {
       openLoginPrompt()
       return
     }
-    toggleFavorite(movieWithEpisodes as any)
+    if (movieWithEpisodes) {
+      toggleFavorite(movieWithEpisodes as any)
+    }
   }
 
   const isMovieFollowed = movieWithEpisodes ? isFollowing(movieWithEpisodes.id) : false
@@ -165,7 +162,12 @@ export function WatchPage() {
         <div className="space-y-4">
           <div className={lightsOff ? 'rounded-[1.75rem] bg-black/80 p-4' : 'rounded-[1.75rem] border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] p-4 shadow-xl dark:shadow-none'}>
             <WatchPlayer 
-              episode={activeEpisode} 
+              episode={activeEpisode ?? {
+                id: 'loading-ep',
+                episodeNumber: 1,
+                title: 'Tập 1',
+                videoUrl: ''
+              }} 
               dimmed={lightsOff} 
               initialTime={initialTime} 
               onProgressUpdate={handleProgressUpdate} 
@@ -174,9 +176,15 @@ export function WatchPage() {
 
           <div className={['flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border p-4', lightsOff ? 'border-white/10 bg-slate-950/80' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950/80 shadow-sm dark:shadow-none'].join(' ')}>
             <div>
-              <p className={['text-xs font-semibold uppercase tracking-[0.2em]', lightsOff ? 'text-cyan-300' : 'text-cyan-600 dark:text-cyan-300'].join(' ')}>Đang xem tập {activeEpisode.episodeNumber}</p>
-              <h1 className={['mt-1 text-2xl font-bold sm:text-3xl', lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'].join(' ')}>{movieWithEpisodes.title}</h1>
-              <p className={['mt-1 text-sm', lightsOff ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'].join(' ')}>{movieWithEpisodes.originalTitle}</p>
+              <p className={['text-xs font-semibold uppercase tracking-[0.2em]', lightsOff ? 'text-cyan-300' : 'text-cyan-600 dark:text-cyan-300'].join(' ')}>
+                {activeEpisode ? `Đang xem tập ${activeEpisode.episodeNumber}` : 'Đang chuẩn bị...'}
+              </p>
+              <h1 className={['mt-1 text-2xl font-bold sm:text-3xl', lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'].join(' ')}>
+                {movieWithEpisodes ? movieWithEpisodes.title : 'Đang tải tên phim...'}
+              </h1>
+              <p className={['mt-1 text-sm', lightsOff ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'].join(' ')}>
+                {movieWithEpisodes ? movieWithEpisodes.originalTitle : ''}
+              </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -240,20 +248,24 @@ export function WatchPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Link
-              to={`/watch/${movieWithEpisodes.slug}?episode=${prevEpisode.episodeNumber}`}
-              className={['inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition', lightsOff ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' : 'border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'].join(' ')}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Tập trước
-            </Link>
-            <Link
-              to={`/watch/${movieWithEpisodes.slug}?episode=${nextEpisode.episodeNumber}`}
-              className={['inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition', lightsOff ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' : 'border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'].join(' ')}
-            >
-              Tập sau
-              <ChevronRight className="h-4 w-4" />
-            </Link>
+            {movieWithEpisodes && prevEpisode ? (
+              <Link
+                to={`/watch/${movieWithEpisodes.slug}?episode=${prevEpisode.episodeNumber}`}
+                className={['inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition', lightsOff ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' : 'border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'].join(' ')}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Tập trước
+              </Link>
+            ) : null}
+            {movieWithEpisodes && nextEpisode ? (
+              <Link
+                to={`/watch/${movieWithEpisodes.slug}?episode=${nextEpisode.episodeNumber}`}
+                className={['inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition', lightsOff ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' : 'border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'].join(' ')}
+              >
+                Tập sau
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : null}
             <button
               type="button"
               className={['inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition', lightsOff ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' : 'border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'].join(' ')}
@@ -277,31 +289,60 @@ export function WatchPage() {
                 <p className={['text-sm', lightsOff ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'].join(' ')}>Tập đã xem và chưa xem được phân biệt bằng trạng thái mock.</p>
               </div>
             </div>
-            <EpisodeList movie={movieWithEpisodes} activeEpisode={activeEpisode.episodeNumber} watchedEpisodes={watchedEpisodes} />
+            {movieWithEpisodes && activeEpisode ? (
+              <EpisodeList movie={movieWithEpisodes} activeEpisode={activeEpisode.episodeNumber} watchedEpisodes={watchedEpisodes} />
+            ) : (
+              <div className="py-6 text-center text-slate-400">
+                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-700 border-t-lime-400"></div>
+                <p className="mt-2 text-xs">Đang tải danh sách tập...</p>
+              </div>
+            )}
           </section>
         </div>
 
         <aside className="space-y-4">
           <section className={['rounded-[1.75rem] border p-5', lightsOff ? 'border-white/10 bg-slate-950/80' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950/80 shadow-sm dark:shadow-none'].join(' ')}>
             <h3 className={['text-base font-bold', lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'].join(' ')}>Thông tin phim</h3>
-            <div className={['mt-4 space-y-3 text-sm', lightsOff ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300'].join(' ')}>
-              <div className="flex justify-between gap-3"><span>Thể loại</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.genres.join(', ')}</span></div>
-              <div className="flex justify-between gap-3"><span>Quốc gia</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.country}</span></div>
-              <div className="flex justify-between gap-3"><span>Năm</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.year}</span></div>
-              <div className="flex justify-between gap-3"><span>Chất lượng</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.quality}</span></div>
-              <div className="flex justify-between gap-3"><span>Số tập</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.totalEpisodes}</span></div>
-            </div>
+            {movieWithEpisodes ? (
+              <div className={['mt-4 space-y-3 text-sm', lightsOff ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300'].join(' ')}>
+                <div className="flex justify-between gap-3"><span>Thể loại</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.genres.join(', ')}</span></div>
+                <div className="flex justify-between gap-3"><span>Quốc gia</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.country}</span></div>
+                <div className="flex justify-between gap-3"><span>Năm</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.year}</span></div>
+                <div className="flex justify-between gap-3"><span>Chất lượng</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.quality}</span></div>
+                <div className="flex justify-between gap-3"><span>Số tập</span><span className={lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'}>{movieWithEpisodes.totalEpisodes}</span></div>
+              </div>
+            ) : (
+              <div className="py-6 text-center text-slate-400">
+                <p className="text-xs">Đang tải thông tin...</p>
+              </div>
+            )}
           </section>
 
           <section className={['rounded-[1.75rem] border p-5', lightsOff ? 'border-white/10 bg-white/[0.04]' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] shadow-sm dark:shadow-none'].join(' ')}>
             <h3 className={['text-base font-bold', lightsOff ? 'text-white' : 'text-slate-900 dark:text-white'].join(' ')}>Mô tả ngắn</h3>
-            <p className={['mt-3 text-sm leading-6', lightsOff ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300'].join(' ')}>{movieWithEpisodes.description}</p>
+            <p className={['mt-3 text-sm leading-6', lightsOff ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300'].join(' ')}>
+              {movieWithEpisodes ? movieWithEpisodes.description : 'Đang tải mô tả...'}
+            </p>
           </section>
         </aside>
       </section>
 
-      <CommentSection movieId={movieWithEpisodes.id} />
-      <MovieRow title="Phim đề xuất" movies={relatedMovies} />
+      {movieWithEpisodes ? (
+        <CommentSection movieId={movieWithEpisodes.id} />
+      ) : (
+        <div className="py-10 text-center text-slate-400 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6">
+          <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-700 border-t-lime-400"></div>
+          <p className="mt-2 text-xs">Đang tải bình luận...</p>
+        </div>
+      )}
+
+      {relatedMovies && relatedMovies.length > 0 ? (
+        <MovieRow title="Phim đề xuất" movies={relatedMovies} />
+      ) : (
+        <div className="py-10 text-center text-slate-500">
+          Đang tải danh sách phim đề xuất...
+        </div>
+      )}
 
       {reportOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-modal-in">
