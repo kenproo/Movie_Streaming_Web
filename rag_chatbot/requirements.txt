@@ -1,9 +1,31 @@
-fastapi>=0.100.0
-uvicorn>=0.22.0
+# ChillFilm RAG Service requirements
+# Production dependencies
+
+# FastAPI framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+
+# Pydantic
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
+
+# Database (MySQL fallback retrieval)
 sqlalchemy>=2.0.0
 pymysql>=1.1.0
-python-dotenv>=1.0.0
-google-genai>=0.1.0
+
+# HTTP
+httpx>=0.27.0
 requests>=2.31.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# LLM (optional — only loaded if GEMINI_API_KEY is set)
+google-genai>=0.1.0
+
+# Vector search (optional — only used if QDRANT_URL reachable)
+# qdrant-client and sentence-transformers are optional
+# Uncomment if you want vector search:
+# qdrant-client>=1.9.0
+# sentence-transformers>=2.7.0
+# torch>=2.0.0  # for sentence-transformers

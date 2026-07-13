@@ -17,9 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +28,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Value("${app.cors.allowed-origins}")
-    private List<String> allowedOrigins;
+    private String allowedOriginsRaw;
 
     private final CustomJwtDecoder customJwtDecoder;
 
@@ -37,11 +38,17 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> origins = Arrays.stream(allowedOriginsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(allowedOrigins);
+        config.setAllowedOrigins(origins);
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -55,9 +62,10 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
             .authorizeHttpRequests(request -> request
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/token", "/auth/introspect", "/auth/refresh", "/auth/logout").permitAll()
-                .requestMatchers(HttpMethod.GET, "/movies", "/movies/slug/**", "/movies/related/**", "/movies/*/videos/**", "/api/movies/*/videos/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/movies", "/movies/slug/**", "/movies/related/**", "/movies/*/videos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/search/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/ratings/movie/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/comments/movie/**", "/comments/replies/**").permitAll()
@@ -90,8 +98,6 @@ public class SecurityConfig {
 
         return jwtAuthenticationConverter;
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

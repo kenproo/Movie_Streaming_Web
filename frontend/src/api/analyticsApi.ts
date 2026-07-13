@@ -17,12 +17,18 @@ export const analyticsApi = {
     return apiClient.get('/admin/analytics/access-logs').then((res) => res.data.result)
   },
   trackView(movieId: string) {
-    return apiClient.post(`/analytics/track-view/${movieId}`).then((res) => res.data.result)
+    return apiClient.post(`/analytics/track-view/${movieId}`, {}, {
+      headers: { 'X-Skip-Global-Error-Handler': 'true' }
+    }).then((res) => res.data.result)
   },
   trackVisit(page: string) {
-    return apiClient.post('/analytics/track-visit', { page }).then((res) => res.data.result)
+    return apiClient.post('/analytics/track-visit', { page }, {
+      headers: { 'X-Skip-Global-Error-Handler': 'true' }
+    }).then((res) => res.data.result)
   },
   trackSearch(keyword: string) {
-    return apiClient.post('/analytics/track-search', { keyword }).then((res) => res.data.result)
+    return apiClient.post('/analytics/track-search', { keyword }, {
+      headers: { 'X-Skip-Global-Error-Handler': 'true' }
+    }).then((res) => res.data.result)
   },
 }

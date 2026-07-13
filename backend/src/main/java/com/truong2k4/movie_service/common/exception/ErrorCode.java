@@ -29,7 +29,10 @@ public enum ErrorCode {
     MEDIA_UPLOAD_FAILED(8001, "Media upload failed", HttpStatus.INTERNAL_SERVER_ERROR),
     VIDEO_SOURCE_NOT_FOUND(2003, "Video source not found", HttpStatus.NOT_FOUND),
     PEXELS_API_ERROR(8002, "Pexels API error", HttpStatus.BAD_GATEWAY),
-    PEXELS_API_UNCONFIGURED(8003, "Pexels API is not configured or disabled", HttpStatus.SERVICE_UNAVAILABLE)
+    PEXELS_API_UNCONFIGURED(8003, "Pexels API is not configured or disabled", HttpStatus.SERVICE_UNAVAILABLE),
+    RAG_UNAVAILABLE(9001, "RAG chatbot service is unavailable", HttpStatus.SERVICE_UNAVAILABLE),
+    RAG_TIMEOUT(9002, "RAG chatbot request timed out", HttpStatus.GATEWAY_TIMEOUT),
+    EXTERNAL_SERVICE_ERROR(9003, "External service error", HttpStatus.BAD_GATEWAY)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

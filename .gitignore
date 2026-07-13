@@ -1,25 +1,28 @@
-# local import data
+# ── Local import / export data ────────────────────────────────────────────
 /import-data/
 /exports/
 /chillfilm_local_export/
 *.jsonl
 poster_download_report.csv
 unmatched_or_missing_posters.csv
-
-# local data/posters
 /posters/
 
-# secrets
+# ── Secrets & credentials (NEVER commit) ──────────────────────────────────
 .env
-.env.*
+.env.local
+.env.development
+.env.production
+!.env.example
+!.env.production.example
 application-secret.yml
 aws-credentials*
 kaggle.json
 *secret*
-*jwt*
-*key*
+*.pem
+*.key
+chillfilm-prod-key.pem
 
-# Python
+# ── Python ────────────────────────────────────────────────────────────────
 **/__pycache__/
 *.pyc
 *.pyo
@@ -27,3 +30,30 @@ kaggle.json
 .pytest_cache/
 .venv/
 venv/
+*.egg-info/
+
+# ── Java / Maven ──────────────────────────────────────────────────────────
+backend/target/
+*.class
+*.jar
+!**/src/**/*.jar
+
+# ── Node.js / Frontend ────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+
+# ── IDE ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# ── OS ────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────────────────
+*.log
+logs/

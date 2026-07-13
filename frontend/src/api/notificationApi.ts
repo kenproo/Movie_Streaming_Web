@@ -12,10 +12,14 @@ export interface NotificationItem {
 
 export const notificationApi = {
   getMyNotifications(): Promise<NotificationItem[]> {
-    return apiClient.get('/notifications').then((res) => res.data.result)
+    return apiClient.get('/notifications', {
+      headers: { 'X-Skip-Global-Error-Handler': 'true' }
+    }).then((res) => res.data.result)
   },
   getUnreadCount(): Promise<number> {
-    return apiClient.get('/notifications/unread-count').then((res) => res.data.result)
+    return apiClient.get('/notifications/unread-count', {
+      headers: { 'X-Skip-Global-Error-Handler': 'true' }
+    }).then((res) => res.data.result)
   },
   markAsRead(id: string): Promise<string> {
     return apiClient.patch(`/notifications/${id}/read`).then((res) => res.data.result)

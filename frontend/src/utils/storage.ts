@@ -1,4 +1,4 @@
-﻿const storagePrefix = 'chillfilm'
+const storagePrefix = 'chillfilm'
 
 export function getStorageKey(key: string) {
   return `${storagePrefix}:${key}`
@@ -18,4 +18,9 @@ export function getStorageItem<T>(key: string, fallback: T): T {
 export function setStorageItem<T>(key: string, value: T) {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(getStorageKey(key), JSON.stringify(value))
+}
+
+export function removeStorageItem(key: string) {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(getStorageKey(key))
 }

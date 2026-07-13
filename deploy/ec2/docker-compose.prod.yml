@@ -1,0 +1,127 @@
+# Production Docker Compose for ChillFilm on EC2
+# Chạy từ /opt/movie-service/
+# docker compose -f docker-compose.prod.yml up -d
+
+services:
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backups/mysql:/backups
+    networks:
+      - chillfilm-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./backups/qdrant:/backups
+    networks:
+      - chillfilm-network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  rag-chatbot:
+    build:
+      context: /opt/movie-streaming-web/rag_chatbot
+      dockerfile: Dockerfile
+    image: chillfilm-rag:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - huggingface_cache:/app/.cache/huggingface
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - chillfilm-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backend:
+    build:
+      context: /opt/movie-streaming-web/backend
+      dockerfile: Dockerfile
+    image: chillfilm-backend:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      rag-chatbot:
+        condition: service_healthy
+    networks:
+      - chillfilm-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/api/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  chillfilm-network:
+    driver: bridge
+    name: chillfilm-network
+
+volumes:
+  mysql_data:
+    name: chillfilm_mysql_data
+  qdrant_data:
+    name: chillfilm_qdrant_data
+  huggingface_cache:
+    name: chillfilm_huggingface_cache

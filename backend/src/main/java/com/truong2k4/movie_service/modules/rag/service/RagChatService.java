@@ -2,35 +2,60 @@ package com.truong2k4.movie_service.modules.rag.service;
 
 import com.truong2k4.movie_service.modules.rag.dto.request.ChatRequest;
 import com.truong2k4.movie_service.modules.rag.dto.response.ChatResponse;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+import java.util.Collections;
+import java.util.UUID;
+
 @Service
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class RagChatService {
 
-    @NonFinal
-    @Value("${rag.service.url:http://localhost:8000}")
-    String ragServiceUrl;
+    private final RestTemplate restTemplate;
+    private final String ragServiceUrl;
+
+    public RagChatService(
+            RestTemplateBuilder restTemplateBuilder,
+            @Value("${rag.service.url:http://localhost:8000}") String ragServiceUrl,
+            @Value("${rag.service.timeout-seconds:20}") int timeoutSeconds
+    ) {
+        this.ragServiceUrl = ragServiceUrl;
+        this.restTemplate = restTemplateBuilder
+                .connectTimeout(Duration.ofSeconds(10))
+                .readTimeout(Duration.ofSeconds(timeoutSeconds))
+                .build();
+    }
 
     public ChatResponse chat(ChatRequest request) {
         String url = ragServiceUrl + "/rag/chat";
-        RestTemplate restTemplate = new RestTemplate();
+        log.info("Calling RAG service at: {}", url);
         try {
-            return restTemplate.postForObject(url, request, ChatResponse.class);
+            ChatResponse response = restTemplate.postForObject(url, request, ChatResponse.class);
+            if (response == null) {
+                log.warn("RAG service returned null response");
+                return buildFallbackResponse(request, "Hệ thống chatbot không trả về kết quả. Vui lòng thử lại sau!");
+            }
+            return response;
+        } catch (ResourceAccessException e) {
+            log.warn("RAG service unavailable: {}", e.getMessage());
+            return buildFallbackResponse(request, "Hệ thống chatbot đang tạm thời không khả dụng. Vui lòng thử lại sau!");
         } catch (Exception e) {
-            e.printStackTrace();
-            return ChatResponse.builder()
-                    .answer("Xin lỗi, hệ thống chatbot đang gặp sự cố kết nối tới RAG service. Vui lòng thử lại sau!")
-                    .recommendations(java.util.Collections.emptyList())
-                    .sessionId(request.getSessionId() != null ? request.getSessionId() : java.util.UUID.randomUUID().toString())
-                    .build();
+            log.error("RAG service error: {}", e.getMessage());
+            return buildFallbackResponse(request, "Hệ thống chatbot gặp sự cố. Vui lòng thử lại sau!");
         }
+    }
+
+    private ChatResponse buildFallbackResponse(ChatRequest request, String message) {
+        return ChatResponse.builder()
+                .answer(message)
+                .recommendations(Collections.emptyList())
+                .sessionId(request.getSessionId() != null ? request.getSessionId() : UUID.randomUUID().toString())
+                .build();
     }
 }

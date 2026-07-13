@@ -13,6 +13,8 @@ import { RegisterPage } from '../pages/RegisterPage'
 import { ProfilePage } from '../pages/ProfilePage'
 import { LibraryPage } from '../pages/LibraryPage'
 import { ForbiddenPage } from '../pages/ForbiddenPage'
+import { OfflinePage } from '../pages/OfflinePage'
+import { Error500Page } from '../pages/Error500Page'
 import { AdminRoute } from './AdminRoute'
 import { ProtectedRoute } from './ProtectedRoute'
 import { AdminLayout } from '../layout/AdminLayout'
@@ -47,6 +49,8 @@ export const routesConfig: RouteObject[] = [
         ],
       },
       { path: '/403', element: <ForbiddenPage /> },
+      { path: '/offline', element: <OfflinePage /> },
+      { path: '/500', element: <Error500Page /> },
     ],
   },
   {

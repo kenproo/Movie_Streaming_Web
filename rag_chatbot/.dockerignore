@@ -1,4 +1,7 @@
-# Ignore venv, pycache và các file không cần thiết để giảm context size khi build
+# Docker build context exclusions for RAG chatbot
+# Không copy những file nhạy cảm và không cần thiết vào image
+
+# Python artifacts
 venv/
 __pycache__/
 *.pyc
@@ -8,8 +11,26 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-.env
-.env.*
-*.log
 .pytest_cache/
 .mypy_cache/
+
+# Environment files (NEVER copy secrets into image)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Tests (không cần trong production image)
+tests/
+
+# Development tools
+.git/
+.gitignore
+*.md
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,51 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop, production, "feature/**" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  backend-ci:
+    name: Backend CI (Java Spring Boot)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          SPRING_PROFILES_ACTIVE: test
+        run: mvn clean test -B
+
+      - name: Build JAR
+        working-directory: backend
+        run: mvn clean package -DskipTests -B
+
+      - name: Verify Dockerfile builds
+        working-directory: backend
+        run: docker build --no-cache -t chillfilm-backend:ci .
+        if: github.event_name == 'push'

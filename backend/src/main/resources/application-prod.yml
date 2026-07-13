@@ -1,14 +1,24 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:10}
+      minimum-idle: ${DB_MIN_IDLE:2}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   jpa:
     show-sql: false
+    hibernate:
+      ddl-auto: validate
 
 jwt:
   signerKey: ${JWT_SECRET}
+  valid-duration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+  refreshable-duration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
 
 external:
   pexels:
@@ -17,19 +27,21 @@ external:
 
 rag:
   service:
-    url: ${RAG_SERVICE_URL:http://localhost:8000}
+    url: ${RAG_BASE_URL:http://rag-chatbot:8000}
+    timeout-seconds: ${RAG_TIMEOUT_SECONDS:20}
 
 qdrant:
-  url: ${QDRANT_URL}
+  url: ${QDRANT_URL:http://qdrant:6333}
+  collection-name: ${QDRANT_COLLECTION:chillfilm_movies}
 
 aws:
-  access-key-id: ${AWS_ACCESS_KEY_ID}
-  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+  access-key-id: ${AWS_ACCESS_KEY_ID:}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
 
 s3:
-  bucket: ${S3_BUCKET}
-  region: ${S3_REGION}
+  bucket: ${AWS_S3_BUCKET:}
+  region: ${AWS_REGION:ap-southeast-1}
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://chillfilm.com}
+    allowed-origins: ${FRONTEND_URL:https://chillfilm.io.vn}

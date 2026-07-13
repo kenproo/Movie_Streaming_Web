@@ -8,6 +8,8 @@ export const watchApi = {
       episodeNumber,
       progressSeconds,
       durationSeconds,
+    }, {
+      headers: { 'X-Skip-Global-Error-Handler': 'true' }
     }).then((res) => res.data.result)
   },
   getActiveProgresses() {
