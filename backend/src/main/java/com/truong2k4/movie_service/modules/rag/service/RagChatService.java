@@ -1,14 +1,16 @@
 package com.truong2k4.movie_service.modules.rag.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.truong2k4.movie_service.modules.rag.dto.request.ChatRequest;
 import com.truong2k4.movie_service.modules.rag.dto.response.ChatResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.UUID;
@@ -17,44 +19,56 @@ import java.util.UUID;
 @Slf4j
 public class RagChatService {
 
-    private final RestTemplate restTemplate;
     private final String ragServiceUrl;
+    private final HttpClient httpClient;
+    private final ObjectMapper objectMapper;
 
     public RagChatService(
-            RestTemplateBuilder restTemplateBuilder,
-            @Value("${rag.service.url:http://localhost:8000}") String ragServiceUrl,
-            @Value("${rag.service.timeout-seconds:20}") int timeoutSeconds
+            @Value("${rag.service.url:http://localhost:8000}") String ragServiceUrl
     ) {
         this.ragServiceUrl = ragServiceUrl;
-        this.restTemplate = restTemplateBuilder
+        this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
-                .readTimeout(Duration.ofSeconds(timeoutSeconds))
                 .build();
+        this.objectMapper = new ObjectMapper();
     }
 
     public ChatResponse chat(ChatRequest request) {
         String url = ragServiceUrl + "/rag/chat";
         log.info("Calling RAG service at: {} with payload: {}", url, request);
         try {
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            String jsonPayload = mapper.writeValueAsString(request);
+            String jsonPayload = objectMapper.writeValueAsString(request);
             log.info("Serialized JSON payload: {}", jsonPayload);
 
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(jsonPayload, headers);
-            ChatResponse response = restTemplate.postForObject(url, entity, ChatResponse.class);
-            if (response == null) {
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .timeout(Duration.ofSeconds(20))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 422) {
+                log.error("RAG service returned 422 validation error: {}", response.body());
+                return buildFallbackResponse(request, "Dữ liệu trò chuyện không hợp lệ. Vui lòng thử lại!");
+            }
+
+            if (response.statusCode() != 200) {
+                log.error("RAG service returned error status {}: {}", response.statusCode(), response.body());
+                return buildFallbackResponse(request, "Hệ thống chatbot gặp sự cố (Mã " + response.statusCode() + "). Vui lòng thử lại sau!");
+            }
+
+            ChatResponse chatResponse = objectMapper.readValue(response.body(), ChatResponse.class);
+            if (chatResponse == null) {
                 log.warn("RAG service returned null response");
                 return buildFallbackResponse(request, "Hệ thống chatbot không trả về kết quả. Vui lòng thử lại sau!");
             }
-            return response;
-        } catch (ResourceAccessException e) {
-            log.warn("RAG service unavailable: {}", e.getMessage());
-            return buildFallbackResponse(request, "Hệ thống chatbot đang tạm thời không khả dụng. Vui lòng thử lại sau!");
+            return chatResponse;
         } catch (Exception e) {
-            log.error("RAG service error: {}", e.getMessage());
-            return buildFallbackResponse(request, "Hệ thống chatbot gặp sự cố. Vui lòng thử lại sau!");
+            log.error("RAG service error: {}", e.getMessage(), e);
+            return buildFallbackResponse(request, "Hệ thống chatbot gặp sự cố kết nối. Vui lòng thử lại sau!");
         }
     }
 
