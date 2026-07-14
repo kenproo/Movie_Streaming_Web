@@ -28,6 +28,7 @@ public class RagChatService {
     ) {
         this.ragServiceUrl = ragServiceUrl;
         this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
         this.objectMapper = new ObjectMapper();
