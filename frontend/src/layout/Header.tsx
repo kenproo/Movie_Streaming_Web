@@ -281,56 +281,61 @@ export function Header() {
 
   return (
     <header className="app-header sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex w-full max-w-[1600px] items-center gap-3 px-4 py-3 sm:px-6 lg:px-10 xl:px-16">
-        <Link to="/" className="group relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-500 p-[1.5px] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20" aria-label="ChillFilm Home">
-          <img src={logo} alt="ChillFilm Logo" width={56} height={56} className="h-14 w-14 rounded-[14px] object-cover bg-slate-950" />
-        </Link>
+      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10 xl:px-16">
+        
+        {/* Left Side: Logo & Navigation */}
+        <div className="flex items-center gap-3 lg:gap-4 xl:gap-6 min-w-0">
+          <Link to="/" className="group relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-500 p-[1.5px] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20" aria-label="ChillFilm Home">
+            <img src={logo} alt="ChillFilm Logo" width={56} height={56} className="h-14 w-14 rounded-[14px] object-cover bg-slate-950" />
+          </Link>
 
-        <nav className="hidden min-w-0 flex-1 items-center gap-1.5 2xl:gap-4 xl:flex xl:ml-3 2xl:ml-8">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => {
-                let isTabActive = isActive
-                if (item.to.startsWith('/movies?tab=')) {
-                  const tabName = item.to.split('tab=')[1]
-                  const hasTabParam = location.search.includes('tab=')
-                  isTabActive =
-                    location.pathname === '/movies' &&
-                    (location.search.includes(`tab=${tabName}`) || (tabName === 'genre' && !hasTabParam))
-                }
-                return [
-                  'whitespace-nowrap rounded-xl px-2.5 py-2 text-sm xl:text-[13px] xl:px-2 2xl:text-[15px] 2xl:px-4 font-bold transition',
-                  isTabActive
-                    ? 'bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/10 dark:text-cyan-300'
-                    : 'text-app-secondary hover:bg-black/5 dark:hover:bg-white/5 hover:text-app-primary',
-                ].join(' ')
-              }}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="relative hidden min-w-0 md:flex md:w-[180px] lg:w-[200px] xl:w-[220px] 2xl:w-[380px] ml-auto">
-          <form onSubmit={submitSearch} className="flex w-full items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1.5 accent-ring">
-            <Search className="h-4 w-4 text-app-muted" />
-            <input
-              value={query}
-              onFocus={() => setSearchOpen(true)}
-              onChange={(event) => {
-                setQuery(event.target.value)
-                setSearchOpen(true)
-              }}
-              placeholder="Tìm kiếm phim, diễn viên..."
-              className="w-full bg-transparent text-sm text-app-primary outline-none placeholder:text-app-muted"
-            />
-          </form>
-          <SearchDropdown query={query} movies={searchResults} open={searchOpen} onClose={() => setSearchOpen(false)} />
+          <nav className="hidden min-w-0 items-center gap-1.5 2xl:gap-4 xl:flex">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => {
+                  let isTabActive = isActive
+                  if (item.to.startsWith('/movies?tab=')) {
+                    const tabName = item.to.split('tab=')[1]
+                    const hasTabParam = location.search.includes('tab=')
+                    isTabActive =
+                      location.pathname === '/movies' &&
+                      (location.search.includes(`tab=${tabName}`) || (tabName === 'genre' && !hasTabParam))
+                  }
+                  return [
+                    'whitespace-nowrap rounded-xl px-2.5 py-2 text-sm xl:text-[13px] xl:px-2 2xl:text-[15px] 2xl:px-4 font-bold transition',
+                    isTabActive
+                      ? 'bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/10 dark:text-cyan-300'
+                      : 'text-app-secondary hover:bg-black/5 dark:hover:bg-white/5 hover:text-app-primary',
+                  ].join(' ')
+                }}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
 
-        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+        {/* Right Side: Search and Actions */}
+        <div className="hidden items-center gap-3 lg:flex shrink-0">
+          <div className="relative min-w-0 md:flex md:w-[180px] lg:w-[200px] xl:w-[220px] 2xl:w-[380px]">
+            <form onSubmit={submitSearch} className="flex w-full items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1.5 accent-ring">
+              <Search className="h-4 w-4 text-app-muted" />
+              <input
+                value={query}
+                onFocus={() => setSearchOpen(true)}
+                onChange={(event) => {
+                  setQuery(event.target.value)
+                  setSearchOpen(true)
+                }}
+                placeholder="Tìm kiếm phim, diễn viên..."
+                className="w-full bg-transparent text-sm text-app-primary outline-none placeholder:text-app-muted"
+              />
+            </form>
+            <SearchDropdown query={query} movies={searchResults} open={searchOpen} onClose={() => setSearchOpen(false)} />
+          </div>
+
           {renderNotifications()}
           {renderThemeToggle()}
           {renderAuthActions()}
