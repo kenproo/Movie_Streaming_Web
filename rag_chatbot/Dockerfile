@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /
 
 # Copy và install requirements vào prefix riêng
 COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
@@ -41,7 +42,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD wget -q --spider http://localhost:8000/health || exit 1
+    CMD wget -q --spider http://127.0.0.1:8000/health || exit 1
 
 # Run với uvicorn production mode (không --reload)
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
