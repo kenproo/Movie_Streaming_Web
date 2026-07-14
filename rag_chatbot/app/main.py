@@ -4,9 +4,10 @@ Main FastAPI application — ChillFilm RAG Service
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 from app.api.routes import chat_routes
 from app.core.config import get_settings
@@ -86,6 +87,20 @@ app = FastAPI(
     docs_url="/docs" if not settings.is_production else None,
     redoc_url=None,
 )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    body = await request.body()
+    body_str = body.decode("utf-8", errors="replace")
+    logger.error("FastAPI Validation error: %s. Raw request body: %s", exc, body_str)
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "detail": exc.errors(),
+            "raw_body": body_str
+        }
+    )
+
 
 # CORS — chỉ cho phép backend gọi, KHÔNG wildcard với credentials
 # Frontend không gọi trực tiếp RAG service
