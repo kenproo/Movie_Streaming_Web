@@ -28,6 +28,7 @@ public class MovieService {
     com.truong2k4.movie_service.modules.library.repository.FollowRepository followRepository;
     com.truong2k4.movie_service.modules.notification.repository.NotificationRepository notificationRepository;
 
+    @Transactional(readOnly = true)
     public Page<Movie> getPublishedMovies(MovieType type, String genre, String country, Integer year, ReleaseStatus releaseStatus, String keyword, Pageable pageable) {
         return movieRepository.findFilteredMoviesPage(
                 MovieStatus.PUBLISHED,
@@ -41,6 +42,7 @@ public class MovieService {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<Movie> getPublishedMovies(MovieType type, String genre, String country, Integer year, ReleaseStatus releaseStatus, String keyword, Sort sort) {
         return movieRepository.findFilteredMoviesList(
                 MovieStatus.PUBLISHED,
@@ -54,11 +56,13 @@ public class MovieService {
         );
     }
 
+    @Transactional(readOnly = true)
     public Movie getMovieBySlug(String slug) {
         return movieRepository.findBySlugAndStatus(slug, MovieStatus.PUBLISHED)
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
     public List<Movie> getRelatedMovies(UUID movieId) {
         Movie currentMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_FOUND));
@@ -75,10 +79,12 @@ public class MovieService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<Movie> getAllMoviesAdmin() {
         return movieRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Movie getMovieByIdAdmin(UUID id) {
         return movieRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_FOUND));

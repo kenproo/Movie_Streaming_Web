@@ -7,6 +7,7 @@ import com.truong2k4.movie_service.modules.movie.dto.response.MovieDetailRespons
 import com.truong2k4.movie_service.modules.movie.dto.response.MovieResponse;
 import com.truong2k4.movie_service.modules.movie.dto.response.MovieSummaryResponse;
 import com.truong2k4.movie_service.modules.movie.entity.Episode;
+import com.truong2k4.movie_service.modules.movie.entity.EpisodeSource;
 import com.truong2k4.movie_service.modules.movie.entity.Movie;
 import org.springframework.stereotype.Component;
 
@@ -209,6 +210,22 @@ public class MovieMapper {
 
     private EpisodeResponse toEpisodeResponse(Episode episode) {
         if (episode == null) return null;
+
+        // Resolve videoUrl from EpisodeSource (child entity)
+        String videoUrl = "";
+        if (episode.getSources() != null && !episode.getSources().isEmpty()) {
+            videoUrl = episode.getSources().stream()
+                    .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                    .filter(s -> Boolean.TRUE.equals(s.getIsDefault()))
+                    .map(EpisodeSource::getVideoUrl)
+                    .findFirst()
+                    .orElseGet(() -> episode.getSources().stream()
+                            .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                            .map(EpisodeSource::getVideoUrl)
+                            .findFirst()
+                            .orElse(episode.getSources().get(0).getVideoUrl()));
+        }
+
         return EpisodeResponse.builder()
                 .id(episode.getId())
                 .episodeNumber(episode.getEpisodeNumber())
@@ -217,6 +234,7 @@ public class MovieMapper {
                 .summary(episode.getSummary())
                 .duration(episode.getDuration())
                 .thumbnailUrl(episode.getThumbnailUrl())
+                .videoUrl(videoUrl)
                 .releasedAt(episode.getReleasedAt())
                 .createdAt(episode.getCreatedAt())
                 .updatedAt(episode.getUpdatedAt())

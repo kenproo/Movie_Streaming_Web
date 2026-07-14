@@ -18,6 +18,7 @@ public class EpisodeResponse {
     String summary;
     String duration;
     String thumbnailUrl;
+    String videoUrl;
     LocalDateTime releasedAt;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
