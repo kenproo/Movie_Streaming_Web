@@ -36,9 +36,13 @@ public class RagChatService {
         String url = ragServiceUrl + "/rag/chat";
         log.info("Calling RAG service at: {} with payload: {}", url, request);
         try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String jsonPayload = mapper.writeValueAsString(request);
+            log.info("Serialized JSON payload: {}", jsonPayload);
+
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-            org.springframework.http.HttpEntity<ChatRequest> entity = new org.springframework.http.HttpEntity<>(request, headers);
+            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(jsonPayload, headers);
             ChatResponse response = restTemplate.postForObject(url, entity, ChatResponse.class);
             if (response == null) {
                 log.warn("RAG service returned null response");

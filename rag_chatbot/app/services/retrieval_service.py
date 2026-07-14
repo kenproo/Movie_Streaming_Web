@@ -79,7 +79,7 @@ def _mysql_search(
                 for genre in genres[:3]:
                     type_clause = "AND LOWER(m.type) = :film_type" if film_type else ""
                     sql = f"""
-                        SELECT m.id, m.title, m.slug, m.poster_url, m.rating, m.year,
+                        SELECT m.id, m.title, m.slug, m.poster_url, m.rating, m.release_year AS year,
                                m.original_title, m.description, m.director, m.display_language,
                                m.duration, m.views, m.type
                         FROM movies m
@@ -102,7 +102,7 @@ def _mysql_search(
             if normalized_query.strip():
                 like_pat = f"%{normalized_query}%"
                 sql = """
-                    SELECT id, title, slug, poster_url, rating, year, original_title,
+                    SELECT id, title, slug, poster_url, rating, release_year AS year, original_title,
                            description, director, display_language, duration, views, type
                     FROM movies
                     WHERE status = 'PUBLISHED'
@@ -118,7 +118,7 @@ def _mysql_search(
             # Fallback: top rated
             if not results:
                 sql = """
-                    SELECT id, title, slug, poster_url, rating, year, original_title,
+                    SELECT id, title, slug, poster_url, rating, release_year AS year, original_title,
                            description, director, display_language, duration, views, type
                     FROM movies WHERE status = 'PUBLISHED'
                     ORDER BY rating DESC LIMIT :lim

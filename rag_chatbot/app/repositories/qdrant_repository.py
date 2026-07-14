@@ -51,8 +51,8 @@ def get_collection_info(collection_name: str) -> Optional[Dict[str, Any]]:
         config = info.config.params.vectors
         return {
             "name": collection_name,
-            "vectors_count": info.vectors_count,
-            "indexed_vectors_count": info.indexed_vectors_count,
+            "vectors_count": getattr(info, "vectors_count", getattr(info, "points_count", 0)),
+            "indexed_vectors_count": getattr(info, "indexed_vectors_count", 0),
             "vector_size": getattr(config, 'size', None),
             "distance": str(getattr(config, 'distance', None)),
         }
@@ -89,7 +89,8 @@ def search_vectors(
         if payload_filter is not None:
             kwargs["query_filter"] = payload_filter
 
-        results = _qdrant_client.search(**kwargs)
+        # Dùng search_points để tương thích với mọi phiên bản qdrant-client
+        results = _qdrant_client.search_points(**kwargs)
 
         elapsed_ms = (time.time() - start) * 1000
         logger.debug("Qdrant search: %d results in %.1fms", len(results), elapsed_ms)
