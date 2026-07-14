@@ -54,6 +54,30 @@ function TypingIndicator() {
   )
 }
 
+function renderFormattedText(text: string) {
+  if (!text) return null
+  const lines = text.split('\n')
+  return lines.map((line, lineIdx) => {
+    const parts = line.split(/(\*\*[^*]+\*\*)/g)
+    const formattedLine = parts.map((part, partIdx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return (
+          <strong key={partIdx} className="font-extrabold text-lime-400 dark:text-lime-300">
+            {part.slice(2, -2)}
+          </strong>
+        )
+      }
+      return part
+    })
+    return (
+      <span key={lineIdx}>
+        {formattedLine}
+        {lineIdx < lines.length - 1 && <br />}
+      </span>
+    )
+  })
+}
+
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user'
 
@@ -65,7 +89,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
           className="max-w-[75%] rounded-2xl rounded-tr-sm bg-gradient-to-br from-green-500 to-emerald-600 px-3.5 py-2.5 shadow-md shadow-green-500/20"
           style={{ wordBreak: 'break-word' }}
         >
-          <p className="text-sm leading-relaxed text-white">{message.text}</p>
+          <p className="text-sm leading-relaxed text-white">{renderFormattedText(message.text)}</p>
         </div>
       </div>
     )
@@ -82,7 +106,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
           className={`inline-block max-w-full rounded-2xl rounded-tl-sm px-3.5 py-2.5 ${
             message.isError
               ? 'border border-red-500/30 bg-red-900/20'
-              : 'border border-white/8 bg-slate-800/80'
+              : 'border border-white/10 bg-slate-800/80 dark:border-white/10 dark:bg-slate-900/90'
           }`}
         >
           {message.isLoading ? (
@@ -92,7 +116,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
               className={`text-sm leading-relaxed ${message.isError ? 'text-red-400' : 'text-slate-200'}`}
               style={{ wordBreak: 'break-word' }}
             >
-              {message.text}
+              {renderFormattedText(message.text)}
             </p>
           )}
         </div>

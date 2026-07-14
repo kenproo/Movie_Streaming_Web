@@ -78,117 +78,119 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative mx-auto flex max-w-5xl w-full items-center justify-center py-6 sm:py-12 px-4 animate-page-in">
+    <div className="relative mx-auto flex max-w-6xl w-full items-center justify-center py-6 sm:py-12 px-4 animate-page-in">
       {/* Decorative background glows */}
       <div className="absolute -left-20 top-1/4 -z-10 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl animate-pulse" />
       <div className="absolute -right-20 bottom-1/4 -z-10 h-72 w-72 rounded-full bg-lime-400/10 blur-3xl animate-pulse" />
  
       {/* Main Container Card */}
-      <div className="w-full grid overflow-hidden rounded-[2.5rem] border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0d1224]/85 backdrop-blur-2xl shadow-2xl dark:shadow-[0_0_50px_rgba(6,182,212,0.05)] lg:grid-cols-[1fr_400px] transition-all duration-500 hover:border-cyan-500/20">
+      <div className="w-full grid overflow-hidden rounded-[2.5rem] border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0d1224]/85 backdrop-blur-2xl shadow-2xl dark:shadow-[0_0_50px_rgba(6,182,212,0.05)] lg:grid-cols-[1.3fr_420px] transition-all duration-500 hover:border-cyan-500/20">
         
         {/* Left Side: Login Form */}
-        <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-lime-400 to-cyan-400 text-slate-950 shadow-md">
-              <Film className="h-4.5 w-4.5" />
+        <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center items-center">
+          <div className="w-full max-w-lg">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-lime-400 to-cyan-400 text-slate-950 shadow-md">
+                <Film className="h-5.5 w-5.5" />
+              </div>
+              <span className="text-lg font-black tracking-wider text-slate-900 dark:text-white">CHILLFILM</span>
             </div>
-            <span className="text-base font-black tracking-wider text-slate-900 dark:text-white">CHILLFILM</span>
+
+            <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl">Đăng nhập</h1>
+            <p className="mt-3 text-base text-slate-500 dark:text-slate-400 leading-relaxed">
+              Xem trọn vẹn kho phim chất lượng cao 4K, lưu trữ danh sách yêu thích và sử dụng trợ lý RAG AI.
+            </p>
+
+            <form onSubmit={submitForm} className="mt-8 space-y-6" noValidate>
+              {/* Email Field */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400" htmlFor="email-input">Email</label>
+                <div className={`relative group ${emailError ? 'animate-shake' : ''}`}>
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-slate-400 group-focus-within:text-cyan-400 transition-colors duration-300">
+                    <Mail className="h-5 w-5" />
+                  </span>
+                  <input
+                    id="email-input"
+                    type="email"
+                    value={email}
+                    disabled={loading}
+                    onChange={(event) => {
+                      const val = event.target.value
+                      setEmail(val)
+                      setEmailError(validateEmail(val))
+                    }}
+                    placeholder="nhap-email@chillfilm.com"
+                    className={[
+                      'w-full rounded-[1.25rem] border pl-14 pr-5 py-4 text-base text-slate-900 dark:text-white bg-slate-50/50 dark:bg-slate-950/40 outline-none transition-all duration-300',
+                      'focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 dark:focus:border-cyan-400',
+                      emailError ? 'border-red-500/80 focus:ring-red-500/10' : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+                    ].join(' ')}
+                    required
+                  />
+                </div>
+                {emailError && <p className="text-[10px] font-bold text-red-500 mt-0.5 pl-1">{emailError}</p>}
+              </div>
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400" htmlFor="password-input">Mật khẩu</label>
+                <div className={`relative group ${passwordError ? 'animate-shake' : ''}`}>
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-slate-400 group-focus-within:text-cyan-400 transition-colors duration-300">
+                    <Lock className="h-5 w-5" />
+                  </span>
+                  <input
+                    id="password-input"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    disabled={loading}
+                    onChange={(event) => {
+                      const val = event.target.value
+                      setPassword(val)
+                      setPasswordError(validatePassword(val))
+                    }}
+                    placeholder="••••••••"
+                    className={[
+                      'w-full rounded-[1.25rem] border pl-14 pr-14 py-4 text-base text-slate-900 dark:text-white bg-slate-50/50 dark:bg-slate-950/40 outline-none transition-all duration-300',
+                      'focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 dark:focus:border-cyan-400',
+                      passwordError ? 'border-red-500/80 focus:ring-red-500/10' : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+                    ].join(' ')}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-5 text-slate-400 hover:text-slate-200 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                {passwordError && <p className="text-[10px] font-bold text-red-500 mt-0.5 pl-1">{passwordError}</p>}
+              </div>
+
+              {/* General Error message */}
+              {error && (
+                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-semibold text-red-500 animate-shake">
+                  {error}
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="relative w-full overflow-hidden rounded-[1.25rem] bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 py-4 text-base font-extrabold text-slate-950 shadow-[0_4px_20px_rgba(163,230,53,0.15)] hover:shadow-[0_4px_30px_rgba(163,230,53,0.3)] hover:brightness-110 active:scale-[0.99] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none cursor-pointer mt-2"
+              >
+                {loading ? 'Đang xác thực tài khoản...' : 'Đăng nhập vào ChillFilm'}
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+              Chưa có tài khoản?{' '}
+              <Link to="/register" className="font-bold text-cyan-600 dark:text-cyan-400 hover:underline">
+                Đăng ký ngay
+              </Link>
+            </p>
           </div>
- 
-          <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">Đăng nhập</h1>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Xem trọn vẹn kho phim chất lượng cao 4K, lưu trữ danh sách yêu thích và sử dụng trợ lý RAG AI.
-          </p>
- 
-          <form onSubmit={submitForm} className="mt-8 space-y-5" noValidate>
-            {/* Email Field */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400" htmlFor="email-input">Email</label>
-              <div className={`relative group ${emailError ? 'animate-shake' : ''}`}>
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-cyan-400 transition-colors duration-300">
-                  <Mail className="h-4.5 w-4.5" />
-                </span>
-                <input
-                  id="email-input"
-                  type="email"
-                  value={email}
-                  disabled={loading}
-                  onChange={(event) => {
-                    const val = event.target.value
-                    setEmail(val)
-                    setEmailError(validateEmail(val))
-                  }}
-                  placeholder="nhap-email@chillfilm.com"
-                  className={[
-                    'w-full rounded-2xl border pl-12 pr-4 py-3.5 text-sm text-slate-900 dark:text-white bg-slate-50/50 dark:bg-slate-950/40 outline-none transition-all duration-300',
-                    'focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 dark:focus:border-cyan-400',
-                    emailError ? 'border-red-500/80 focus:ring-red-500/10' : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
-                  ].join(' ')}
-                  required
-                />
-              </div>
-              {emailError && <p className="text-[10px] font-bold text-red-500 mt-0.5 pl-1">{emailError}</p>}
-            </div>
- 
-            {/* Password Field */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400" htmlFor="password-input">Mật khẩu</label>
-              <div className={`relative group ${passwordError ? 'animate-shake' : ''}`}>
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-cyan-400 transition-colors duration-300">
-                  <Lock className="h-4.5 w-4.5" />
-                </span>
-                <input
-                  id="password-input"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  disabled={loading}
-                  onChange={(event) => {
-                    const val = event.target.value
-                    setPassword(val)
-                    setPasswordError(validatePassword(val))
-                  }}
-                  placeholder="••••••••"
-                  className={[
-                    'w-full rounded-2xl border pl-12 pr-12 py-3.5 text-sm text-slate-900 dark:text-white bg-slate-50/50 dark:bg-slate-950/40 outline-none transition-all duration-300',
-                    'focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 dark:focus:border-cyan-400',
-                    passwordError ? 'border-red-500/80 focus:ring-red-500/10' : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
-                  ].join(' ')}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-200 cursor-pointer"
-                >
-                  {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
-                </button>
-              </div>
-              {passwordError && <p className="text-[10px] font-bold text-red-500 mt-0.5 pl-1">{passwordError}</p>}
-            </div>
- 
-            {/* General Error message */}
-            {error && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-semibold text-red-500 animate-shake">
-                {error}
-              </div>
-            )}
- 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 py-3.5 text-sm font-bold text-slate-950 shadow-[0_4px_20px_rgba(163,230,53,0.15)] hover:shadow-[0_4px_30px_rgba(163,230,53,0.3)] hover:brightness-110 active:scale-[0.99] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
-            >
-              {loading ? 'Đang xác thực tài khoản...' : 'Đăng nhập vào ChillFilm'}
-            </button>
-          </form>
- 
-          <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            Chưa có tài khoản?{' '}
-            <Link to="/register" className="font-bold text-cyan-600 dark:text-cyan-400 hover:underline">
-              Đăng ký ngay
-            </Link>
-          </p>
         </div>
  
         {/* Right Side: Demo Accounts Banner */}

@@ -104,7 +104,7 @@ export function LibraryPage() {
           <div className="flex items-center gap-2 text-sm font-semibold text-app-muted">
             <span>Hiển thị {movies.length} bộ phim</span>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-6">
             {movies.map((movie) => (
               <MovieCard key={movie.id} movie={movie} />
             ))}

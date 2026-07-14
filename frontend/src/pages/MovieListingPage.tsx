@@ -32,7 +32,7 @@ type ListingCacheData = {
 
 function LoadingGrid() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
       {loadingFallback.map((_, index) => (
         <div key={index} className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-900/80">
           <Skeleton className="aspect-[2/3] rounded-none" />

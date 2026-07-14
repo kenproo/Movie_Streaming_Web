@@ -78,7 +78,7 @@ export function HomePage() {
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Tiếp tục xem các bộ phim bạn đang xem dở.</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:gap-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-6">
             {activeProgress.map((item) => {
               const movie = mapMovieToFrontend(item.movie)
               if (!movie) return null
