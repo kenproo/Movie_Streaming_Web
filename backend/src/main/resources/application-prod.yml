@@ -44,4 +44,4 @@ s3:
 
 app:
   cors:
-    allowed-origins: ${FRONTEND_URL:https://chillfilm.io.vn}
+    allowed-origins: ${FRONTEND_URL:https://chillfilm.io.vn,https://www.chillfilm.io.vn}
