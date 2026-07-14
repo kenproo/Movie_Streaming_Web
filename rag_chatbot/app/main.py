@@ -13,7 +13,7 @@ from app.core.config import get_settings
 from app.core.logging import logger
 from app.repositories import qdrant_repository
 from app.repositories.qdrant_repository import get_collection_info
-from app.schemas.schemas import HealthResponse
+from app.schemas.schemas import HealthResponse, ChatRequest
 from app.services import embedding_service
 
 
@@ -130,14 +130,13 @@ def readiness_check():
 # ── Legacy endpoint (giữ tương thích với backend đang gọi /rag/chat) ─────
 
 @app.post("/rag/chat", tags=["Legacy"])
-async def legacy_chat(request: dict):
+async def legacy_chat(request: ChatRequest):
     """Legacy endpoint — giữ tương thích với Spring Boot backend."""
-    from app.schemas.schemas import ChatRequest, ChatResponse
     from app.services import chatbot_service
     import uuid
 
-    message = request.get("message", "")
-    session_id = request.get("sessionId")
+    message = request.message
+    session_id = request.session_id
 
     try:
         result = chatbot_service.chat(message=message, session_id=session_id)
