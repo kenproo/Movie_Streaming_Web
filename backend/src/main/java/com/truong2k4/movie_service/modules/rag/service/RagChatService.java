@@ -34,9 +34,12 @@ public class RagChatService {
 
     public ChatResponse chat(ChatRequest request) {
         String url = ragServiceUrl + "/rag/chat";
-        log.info("Calling RAG service at: {}", url);
+        log.info("Calling RAG service at: {} with payload: {}", url, request);
         try {
-            ChatResponse response = restTemplate.postForObject(url, request, ChatResponse.class);
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+            org.springframework.http.HttpEntity<ChatRequest> entity = new org.springframework.http.HttpEntity<>(request, headers);
+            ChatResponse response = restTemplate.postForObject(url, entity, ChatResponse.class);
             if (response == null) {
                 log.warn("RAG service returned null response");
                 return buildFallbackResponse(request, "Hệ thống chatbot không trả về kết quả. Vui lòng thử lại sau!");
