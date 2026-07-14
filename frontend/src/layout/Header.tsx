@@ -284,12 +284,12 @@ export function Header() {
       <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10 xl:px-16">
         
         {/* Left Side: Logo & Navigation */}
-        <div className="flex items-center gap-3 lg:gap-4 xl:gap-6 min-w-0">
+        <div className="flex items-center gap-3 lg:gap-4 xl:gap-3 2xl:gap-6 shrink-0">
           <Link to="/" className="group relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-500 p-[1.5px] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20" aria-label="ChillFilm Home">
             <img src={logo} alt="ChillFilm Logo" width={56} height={56} className="h-14 w-14 rounded-[14px] object-cover bg-slate-950" />
           </Link>
 
-          <nav className="hidden min-w-0 items-center gap-1.5 2xl:gap-4 xl:flex">
+          <nav className="hidden items-center gap-1 2xl:gap-4 xl:flex">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -304,7 +304,7 @@ export function Header() {
                       (location.search.includes(`tab=${tabName}`) || (tabName === 'genre' && !hasTabParam))
                   }
                   return [
-                    'whitespace-nowrap rounded-xl px-2.5 py-2 text-sm xl:text-[13px] xl:px-2 2xl:text-[15px] 2xl:px-4 font-bold transition',
+                    'whitespace-nowrap rounded-xl px-2.5 py-2 text-sm xl:text-[12px] xl:px-1.5 2xl:text-[15px] 2xl:px-4 font-bold transition',
                     isTabActive
                       ? 'bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/10 dark:text-cyan-300'
                       : 'text-app-secondary hover:bg-black/5 dark:hover:bg-white/5 hover:text-app-primary',
@@ -319,7 +319,7 @@ export function Header() {
 
         {/* Right Side: Search and Actions */}
         <div className="hidden items-center gap-3 lg:flex shrink-0">
-          <div className="relative min-w-0 md:flex md:w-[180px] lg:w-[200px] xl:w-[220px] 2xl:w-[380px]">
+          <div className="relative md:flex md:w-[180px] lg:w-[200px] xl:w-[200px] 2xl:w-[380px]">
             <form onSubmit={submitSearch} className="flex w-full items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1.5 accent-ring">
               <Search className="h-4 w-4 text-app-muted" />
               <input
