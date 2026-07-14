@@ -5,13 +5,8 @@ import re
 import unicodedata
 
 
-# Vietnamese accent removal mapping
-_ACCENT_MAP = str.maketrans(
-    "àáâãäåæāăąbcçćĉčddðďđèéêëēĕęěfggĝğġĥħìíîïĩīĭiĵkklĺļľŀłmnñńņňŋòóôõöøōŏőœppqrŕŗřsśŝşšttţťŧùúûüũūŭůűųvŵxýÿźżžþ"
-    "ÀÁÂÃÄÅÆĀĂĄBCÇĆĈČDDÐĎĐÈÉÊËĒĔĘĚFGGĜĞĠĤĦÌÍÎÏĨĪĬIĴKKLĹĻĽĿŁMNÑŃŅŇŊÒÓÔÕÖØŌŎŐŒPPQRŔŖŘSŚŜŞŠTTŢŤŦÙÚÛÜŨŪŬŮŰŲVŴXÝŸŹŻŽÞ",
-    "aaaaaaaaaaabcccccdddddeeeeeeeeeefggggghhiiiiiiiiijkklllllmnnnnnnoooooooooooppqrrrrssssssttttuuuuuuuuuuvwxyyzzzt"
-    "AAAAAAAAAAABCCCCCDDDDDEEEEEEEEEEFGGGGGHHIIIIIIIIIJKKLLLLLMNNNNNNOOOOOOOOOOOPPQRRRRSSSSSSTTTTUUUUUUUUUUVWXYYZZZT",
-)
+# Unused mapping
+_ACCENT_MAP = {}
 
 # Vietnamese diacritics
 _VIET_ACCENT_MAP = {
