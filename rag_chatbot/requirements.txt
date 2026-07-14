@@ -23,9 +23,7 @@ python-dotenv>=1.0.0
 # LLM (optional — only loaded if GEMINI_API_KEY is set)
 google-genai>=0.1.0
 
-# Vector search (optional — only used if QDRANT_URL reachable)
-# qdrant-client and sentence-transformers are optional
-# Uncomment if you want vector search:
-# qdrant-client>=1.9.0
-# sentence-transformers>=2.7.0
-# torch>=2.0.0  # for sentence-transformers
+# Uncommented to enable vector search:
+qdrant-client>=1.9.0
+sentence-transformers>=2.7.0
+torch>=2.0.0  # for sentence-transformers
