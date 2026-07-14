@@ -286,7 +286,7 @@ export function Header() {
           <img src={logo} alt="ChillFilm Logo" width={56} height={56} className="h-14 w-14 rounded-[14px] object-cover bg-slate-950" />
         </Link>
 
-        <nav className="hidden min-w-0 flex-1 items-center gap-2 xl:gap-3.5 2xl:gap-5 xl:flex xl:ml-6 2xl:ml-10">
+        <nav className="hidden min-w-0 flex-1 items-center gap-1.5 2xl:gap-4 xl:flex xl:ml-3 2xl:ml-8">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -301,7 +301,7 @@ export function Header() {
                     (location.search.includes(`tab=${tabName}`) || (tabName === 'genre' && !hasTabParam))
                 }
                 return [
-                  'whitespace-nowrap rounded-xl px-3 py-2 text-sm xl:text-[14px] 2xl:text-[15px] font-bold transition',
+                  'whitespace-nowrap rounded-xl px-2.5 py-2 text-sm xl:text-[13px] xl:px-2 2xl:text-[15px] 2xl:px-4 font-bold transition',
                   isTabActive
                     ? 'bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/10 dark:text-cyan-300'
                     : 'text-app-secondary hover:bg-black/5 dark:hover:bg-white/5 hover:text-app-primary',
@@ -313,7 +313,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="relative hidden min-w-0 md:flex md:w-[200px] lg:w-[240px] xl:w-[280px] 2xl:w-[380px] ml-auto">
+        <div className="relative hidden min-w-0 md:flex md:w-[180px] lg:w-[200px] xl:w-[220px] 2xl:w-[380px] ml-auto">
           <form onSubmit={submitSearch} className="flex w-full items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1.5 accent-ring">
             <Search className="h-4 w-4 text-app-muted" />
             <input
